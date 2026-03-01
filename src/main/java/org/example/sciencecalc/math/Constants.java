@@ -20,6 +20,9 @@ public final class Constants {
     public static final int BETA_INDEX = ARR_2ND_INDEX;
     public static final int GAMMA_INDEX = ARR_3RD_INDEX;
 
+    public static final String DIVISION_BY_ZERO = "Division by zero";
+    public static final String MISMATCHED_DIMENSIONS = "Mismatched dimensions";
+
     private Constants() {
     }
 }

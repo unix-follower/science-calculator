@@ -1,6 +1,6 @@
 package org.example.sciencecalc.physics;
 
-import org.example.sciencecalc.math.MathCalc;
+import org.example.sciencecalc.math.Trigonometry;
 
 public enum AngleUnit {
     DEGREE, // deg
@@ -36,7 +36,7 @@ public enum AngleUnit {
     }
 
     public static double turnsToRadians(double turns) {
-        return MathCalc.Trigonometry.PI2 * turns;
+        return Trigonometry.PI2 * turns;
     }
 
     public static double turnsToDegrees(double turns) {
@@ -52,6 +52,6 @@ public enum AngleUnit {
     }
 
     public static double revolutionsPerSecFromAngularVelocity(double velocity) {
-        return velocity / MathCalc.Trigonometry.PI2;
+        return velocity / Trigonometry.PI2;
     }
 }

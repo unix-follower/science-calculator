@@ -1,6 +1,6 @@
 package org.example.sciencecalc.physics;
 
-import static org.example.sciencecalc.math.MathCalc.Algebra.log;
+import static org.example.sciencecalc.math.Algebra.log;
 
 public enum PowerUnit {
     PICOWATT, // pW, 10⁻¹² W
