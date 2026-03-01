@@ -1,6 +1,7 @@
 package org.example.sciencecalc.construction;
 
-import org.example.sciencecalc.math.MathCalc;
+import org.example.sciencecalc.math.Arithmetic;
+import org.example.sciencecalc.math.Geometry;
 import org.example.sciencecalc.physics.LengthUnit;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,9 @@ class ConstructionCalcTest {
             // given aluminum
             final double length = LengthUnit.feetToMeters(8);
             final double width = LengthUnit.feetToMeters(4);
-            final double thickness = LengthUnit.inchesToMeters(MathCalc.ONE_FOURTH);
+            final double thickness = LengthUnit.inchesToMeters(Arithmetic.ONE_FOURTH);
             final byte pieces = 1;
-            final double volume = MathCalc.Geometry.rectangularPrismVolume(length, width, thickness);
+            final double volume = Geometry.rectangularPrismVolume(length, width, thickness);
             final short density = 2700; // average
             // when
             final double totalWeight = ConstructionCalc.Materials.aluminumWeight(volume, density, pieces);

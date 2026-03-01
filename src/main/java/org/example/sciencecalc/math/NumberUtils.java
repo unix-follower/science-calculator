@@ -6,6 +6,11 @@ public final class NumberUtils {
     private NumberUtils() {
     }
 
+    public static double truncate(double value, int decimals) {
+        final double factor = Math.pow(10, decimals);
+        return Math.floor(value * factor) / factor;
+    }
+
     public static double[] splitWholeAndFractionViaModulo(double value) {
         final double fractionalPart = value % 1;
         final double wholePart = value - fractionalPart;
@@ -46,5 +51,17 @@ public final class NumberUtils {
         if (value > inclusiveBound) {
             throw new IllegalArgumentException("This value must be <= " + inclusiveBound);
         }
+    }
+
+    public static void checkNotEqTo(double value, double[] invalidValues) {
+        for (var invalidValue : invalidValues) {
+            if (value == invalidValue) {
+                throw new IllegalArgumentException("The value must not be equal to " + invalidValue);
+            }
+        }
+    }
+
+    public static void checkNotEq0(double value) {
+        checkNotEqTo(value, new double[]{0});
     }
 }

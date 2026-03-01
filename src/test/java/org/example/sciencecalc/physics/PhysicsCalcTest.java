@@ -2,7 +2,8 @@ package org.example.sciencecalc.physics;
 
 import org.example.sciencecalc.math.Constants;
 import org.example.sciencecalc.math.ConversionCalculator;
-import org.example.sciencecalc.math.MathCalc;
+import org.example.sciencecalc.math.Geometry;
+import org.example.sciencecalc.math.Trigonometry;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -119,7 +120,7 @@ class PhysicsCalcTest {
         @Test
         void testAvgVelocity() {
             // given
-            final double[][] velocities = new double[][]{{1, MathCalc.ONE_HALF}, {5, 1}, {10, 3}};
+            final double[][] velocities = new double[][]{{1, 0.5}, {5, 1}, {10, 3}};
             // when
             final double velocity = PhysicsCalc.Kinematics.avgVelocity(velocities);
             // then
@@ -1571,7 +1572,7 @@ class PhysicsCalcTest {
             final byte transmitterOutputPower = 21;
             final byte antennaGain = 11;
             final byte numberOfConnectors = 2;
-            final double connectorLoss = MathCalc.ONE_HALF;
+            final double connectorLoss = 0.5;
             // when
             final double eirp = PhysicsCalc.Mechanics.eirpWithKnownTotalCableLoss(totalCableLoss,
                 transmitterOutputPower, antennaGain, numberOfConnectors, connectorLoss);
@@ -1587,7 +1588,7 @@ class PhysicsCalcTest {
             final byte transmitterOutputPower = 21;
             final byte antennaGain = 11;
             final byte numberOfConnectors = 2;
-            final double connectorLoss = MathCalc.ONE_HALF;
+            final double connectorLoss = 0.5;
             // when
             final double eirp = PhysicsCalc.Mechanics.eirpWithKnownCableLossPerUnitOfLength(cableLoss, cableLength,
                 transmitterOutputPower, antennaGain, numberOfConnectors, connectorLoss);
@@ -1599,15 +1600,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.05577, 21, 11, 2, MathCalc.ONE_HALF, 30.944, DELTA3),
+                Arguments.of(0.05577, 21, 11, 2, 0.5, 30.944, DELTA3),
                 // Frequency = 450 MHz
-                Arguments.of(0.09514, 21, 11, 2, MathCalc.ONE_HALF, 30.905, DELTA3),
+                Arguments.of(0.09514, 21, 11, 2, 0.5, 30.905, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.13451, 21, 11, 2, MathCalc.ONE_HALF, 30.865, DELTA3),
+                Arguments.of(0.13451, 21, 11, 2, 0.5, 30.865, DELTA3),
                 // Frequency = 1800 MHz
-                Arguments.of(0.20013, 21, 11, 2, MathCalc.ONE_HALF, 30.8, DELTA1),
+                Arguments.of(0.20013, 21, 11, 2, 0.5, 30.8, DELTA1),
                 // Frequency = 2400 MHz
-                Arguments.of(0.2395, 21, 11, 2, MathCalc.ONE_HALF, 30.76, DELTA2)
+                Arguments.of(0.2395, 21, 11, 2, 0.5, 30.76, DELTA2)
             );
         }
 
@@ -1615,15 +1616,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(1.739, 21, 11, 2, MathCalc.ONE_HALF, 29.26, DELTA2),
+                Arguments.of(1.739, 21, 11, 2, 0.5, 29.26, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.3445, 21, 11, 2, MathCalc.ONE_HALF, 30.656, DELTA3),
+                Arguments.of(0.3445, 21, 11, 2, 0.5, 30.656, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.5249, 21, 11, 2, MathCalc.ONE_HALF, 30.475, DELTA3),
+                Arguments.of(0.5249, 21, 11, 2, 0.5, 30.475, DELTA3),
                 // Frequency = 1800 MHz
-                Arguments.of(0.6923, 21, 11, 2, MathCalc.ONE_HALF, 30.31, DELTA2),
+                Arguments.of(0.6923, 21, 11, 2, 0.5, 30.31, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.8136, 21, 11, 2, MathCalc.ONE_HALF, 30.186, DELTA3)
+                Arguments.of(0.8136, 21, 11, 2, 0.5, 30.186, DELTA3)
             );
         }
 
@@ -1631,15 +1632,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.10499, 21, 11, 2, MathCalc.ONE_HALF, 30.895, DELTA3),
+                Arguments.of(0.10499, 21, 11, 2, 0.5, 30.895, DELTA3),
                 // Frequency = 450 MHz
-                Arguments.of(0.2067, 21, 11, 2, MathCalc.ONE_HALF, 30.793, DELTA3),
+                Arguments.of(0.2067, 21, 11, 2, 0.5, 30.793, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.30184, 21, 11, 2, MathCalc.ONE_HALF, 30.7, DELTA1),
+                Arguments.of(0.30184, 21, 11, 2, 0.5, 30.7, DELTA1),
                 // Frequency = 1800 MHz
-                Arguments.of(0.4265, 21, 11, 2, MathCalc.ONE_HALF, 30.573, DELTA1),
+                Arguments.of(0.4265, 21, 11, 2, 0.5, 30.573, DELTA1),
                 // Frequency = 2400 MHz
-                Arguments.of(0.6857, 21, 11, 2, MathCalc.ONE_HALF, 30.314, DELTA3)
+                Arguments.of(0.6857, 21, 11, 2, 0.5, 30.314, DELTA3)
             );
         }
 
@@ -1647,15 +1648,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.3379, 21, 11, 2, MathCalc.ONE_HALF, 30.66, DELTA2),
+                Arguments.of(0.3379, 21, 11, 2, 0.5, 30.66, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.05938, 21, 11, 2, MathCalc.ONE_HALF, 30.94, DELTA2),
+                Arguments.of(0.05938, 21, 11, 2, 0.5, 30.94, DELTA2),
                 // Frequency = 900 MHz
-                Arguments.of(0.8497, 21, 11, 2, MathCalc.ONE_HALF, 30.15, DELTA2),
+                Arguments.of(0.8497, 21, 11, 2, 0.5, 30.15, DELTA2),
                 // Frequency = 1800 MHz
-                Arguments.of(1.2303, 21, 11, 2, MathCalc.ONE_HALF, 29.77, DELTA2),
+                Arguments.of(1.2303, 21, 11, 2, 0.5, 29.77, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(1.4272, 21, 11, 2, MathCalc.ONE_HALF, 29.57, DELTA2)
+                Arguments.of(1.4272, 21, 11, 2, 0.5, 29.57, DELTA2)
             );
         }
 
@@ -1663,15 +1664,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.08202, 21, 11, 2, MathCalc.ONE_HALF, 30.92, DELTA2),
+                Arguments.of(0.08202, 21, 11, 2, 0.5, 30.92, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.16404, 21, 11, 2, MathCalc.ONE_HALF, 30.836, DELTA3),
+                Arguments.of(0.16404, 21, 11, 2, 0.5, 30.836, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.24934, 21, 11, 2, MathCalc.ONE_HALF, 30.75, DELTA2),
+                Arguments.of(0.24934, 21, 11, 2, 0.5, 30.75, DELTA2),
                 // Frequency = 1800 MHz
-                Arguments.of(0.33465, 21, 11, 2, MathCalc.ONE_HALF, 30.665, DELTA3),
+                Arguments.of(0.33465, 21, 11, 2, 0.5, 30.665, DELTA3),
                 // Frequency = 2400 MHz
-                Arguments.of(0.4068, 21, 11, 2, MathCalc.ONE_HALF, 30.593, DELTA3)
+                Arguments.of(0.4068, 21, 11, 2, 0.5, 30.593, DELTA3)
             );
         }
 
@@ -1679,15 +1680,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.14436, 21, 11, 2, MathCalc.ONE_HALF, 30.856, DELTA3),
+                Arguments.of(0.14436, 21, 11, 2, 0.5, 30.856, DELTA3),
                 // Frequency = 450 MHz
-                Arguments.of(0.2559, 21, 11, 2, MathCalc.ONE_HALF, 30.744, DELTA3),
+                Arguments.of(0.2559, 21, 11, 2, 0.5, 30.744, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.3642, 21, 11, 2, MathCalc.ONE_HALF, 30.636, DELTA3),
+                Arguments.of(0.3642, 21, 11, 2, 0.5, 30.636, DELTA3),
                 // Frequency = 1800 MHz
-                Arguments.of(0.5249, 21, 11, 2, MathCalc.ONE_HALF, 30.475, DELTA3),
+                Arguments.of(0.5249, 21, 11, 2, 0.5, 30.475, DELTA3),
                 // Frequency = 2400 MHz
-                Arguments.of(0.5545, 21, 11, 2, MathCalc.ONE_HALF, 30.446, DELTA3)
+                Arguments.of(0.5545, 21, 11, 2, 0.5, 30.446, DELTA3)
             );
         }
 
@@ -1695,15 +1696,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.09843, 21, 11, 2, MathCalc.ONE_HALF, 30.9, DELTA1),
+                Arguments.of(0.09843, 21, 11, 2, 0.5, 30.9, DELTA1),
                 // Frequency = 450 MHz
-                Arguments.of(0.1739, 21, 11, 2, MathCalc.ONE_HALF, 30.826, DELTA3),
+                Arguments.of(0.1739, 21, 11, 2, 0.5, 30.826, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.24934, 21, 11, 2, MathCalc.ONE_HALF, 30.75, DELTA2),
+                Arguments.of(0.24934, 21, 11, 2, 0.5, 30.75, DELTA2),
                 // Frequency = 1800 MHz
-                Arguments.of(0.3576, 21, 11, 2, MathCalc.ONE_HALF, 30.64, DELTA2),
+                Arguments.of(0.3576, 21, 11, 2, 0.5, 30.64, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.4134, 21, 11, 2, MathCalc.ONE_HALF, 30.587, DELTA3)
+                Arguments.of(0.4134, 21, 11, 2, 0.5, 30.587, DELTA3)
             );
         }
 
@@ -1711,15 +1712,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.04921, 21, 11, 2, MathCalc.ONE_HALF, 30.95, DELTA2),
+                Arguments.of(0.04921, 21, 11, 2, 0.5, 30.95, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.08858, 21, 11, 2, MathCalc.ONE_HALF, 30.91, DELTA2),
+                Arguments.of(0.08858, 21, 11, 2, 0.5, 30.91, DELTA2),
                 // Frequency = 900 MHz
-                Arguments.of(0.12795, 21, 11, 2, MathCalc.ONE_HALF, 30.87, DELTA2),
+                Arguments.of(0.12795, 21, 11, 2, 0.5, 30.87, DELTA2),
                 // Frequency = 1800 MHz
-                Arguments.of(0.187, 21, 11, 2, MathCalc.ONE_HALF, 30.81, DELTA2),
+                Arguments.of(0.187, 21, 11, 2, 0.5, 30.81, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.21654, 21, 11, 2, MathCalc.ONE_HALF, 30.783, DELTA3)
+                Arguments.of(0.21654, 21, 11, 2, 0.5, 30.783, DELTA3)
             );
         }
 
@@ -1727,15 +1728,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.03281, 21, 11, 2, MathCalc.ONE_HALF, 30.97, DELTA2),
+                Arguments.of(0.03281, 21, 11, 2, 0.5, 30.97, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.05577, 21, 11, 2, MathCalc.ONE_HALF, 30.944, DELTA3),
+                Arguments.of(0.05577, 21, 11, 2, 0.5, 30.944, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.08202, 21, 11, 2, MathCalc.ONE_HALF, 30.92, DELTA2),
+                Arguments.of(0.08202, 21, 11, 2, 0.5, 30.92, DELTA2),
                 // Frequency = 1800 MHz
-                Arguments.of(0.1214, 21, 11, 2, MathCalc.ONE_HALF, 30.88, DELTA2),
+                Arguments.of(0.1214, 21, 11, 2, 0.5, 30.88, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.14108, 21, 11, 2, MathCalc.ONE_HALF, 30.86, DELTA2)
+                Arguments.of(0.14108, 21, 11, 2, 0.5, 30.86, DELTA2)
             );
         }
 
@@ -1743,15 +1744,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.022966, 21, 11, 2, MathCalc.ONE_HALF, 30.98, DELTA2),
+                Arguments.of(0.022966, 21, 11, 2, 0.5, 30.98, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.03937, 21, 11, 2, MathCalc.ONE_HALF, 30.96, DELTA2),
+                Arguments.of(0.03937, 21, 11, 2, 0.5, 30.96, DELTA2),
                 // Frequency = 900 MHz
-                Arguments.of(0.05577, 21, 11, 2, MathCalc.ONE_HALF, 30.944, DELTA3),
+                Arguments.of(0.05577, 21, 11, 2, 0.5, 30.944, DELTA3),
                 // Frequency = 1800 MHz
-                Arguments.of(0.08202, 21, 11, 2, MathCalc.ONE_HALF, 30.92, DELTA2),
+                Arguments.of(0.08202, 21, 11, 2, 0.5, 30.92, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.09514, 21, 11, 2, MathCalc.ONE_HALF, 30.905, DELTA3)
+                Arguments.of(0.09514, 21, 11, 2, 0.5, 30.905, DELTA3)
             );
         }
 
@@ -1759,15 +1760,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.05906, 21, 11, 2, MathCalc.ONE_HALF, 30.94, DELTA2),
+                Arguments.of(0.05906, 21, 11, 2, 0.5, 30.94, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.10499, 21, 11, 2, MathCalc.ONE_HALF, 30.895, DELTA3),
+                Arguments.of(0.10499, 21, 11, 2, 0.5, 30.895, DELTA3),
                 // Frequency = 900 MHz
-                Arguments.of(0.1542, 21, 11, 2, MathCalc.ONE_HALF, 30.846, DELTA3),
+                Arguments.of(0.1542, 21, 11, 2, 0.5, 30.846, DELTA3),
                 // Frequency = 1800 MHz
-                Arguments.of(0.2264, 21, 11, 2, MathCalc.ONE_HALF, 30.774, DELTA3),
+                Arguments.of(0.2264, 21, 11, 2, 0.5, 30.774, DELTA3),
                 // Frequency = 2400 MHz
-                Arguments.of(0.2592, 21, 11, 2, MathCalc.ONE_HALF, 30.74, DELTA2)
+                Arguments.of(0.2592, 21, 11, 2, 0.5, 30.74, DELTA2)
             );
         }
 
@@ -1775,15 +1776,15 @@ class PhysicsCalcTest {
             // Cable length = 1
             return List.of(
                 // Frequency = 150 MHz
-                Arguments.of(0.03937, 21, 11, 2, MathCalc.ONE_HALF, 30.96, DELTA2),
+                Arguments.of(0.03937, 21, 11, 2, 0.5, 30.96, DELTA2),
                 // Frequency = 450 MHz
-                Arguments.of(0.0689, 21, 11, 2, MathCalc.ONE_HALF, 30.93, DELTA2),
+                Arguments.of(0.0689, 21, 11, 2, 0.5, 30.93, DELTA2),
                 // Frequency = 900 MHz
-                Arguments.of(0.09843, 21, 11, 2, MathCalc.ONE_HALF, 30.9, DELTA1),
+                Arguments.of(0.09843, 21, 11, 2, 0.5, 30.9, DELTA1),
                 // Frequency = 1800 MHz
-                Arguments.of(0.14764, 21, 11, 2, MathCalc.ONE_HALF, 30.85, DELTA2),
+                Arguments.of(0.14764, 21, 11, 2, 0.5, 30.85, DELTA2),
                 // Frequency = 2400 MHz
-                Arguments.of(0.16732, 21, 11, 2, MathCalc.ONE_HALF, 30.83, DELTA2)
+                Arguments.of(0.16732, 21, 11, 2, 0.5, 30.83, DELTA2)
             );
         }
 
@@ -2463,7 +2464,7 @@ class PhysicsCalcTest {
         @Test
         void testRadiatedPower() {
             // given
-            final double sunArea = MathCalc.Geometry.sphereArea(LengthUnit.SUN_RADIUS);
+            final double sunArea = Geometry.sphereArea(LengthUnit.SUN_RADIUS);
             final short temperature = 5776;
             final byte perfectEmissivity = 1;
             // when
@@ -2476,7 +2477,7 @@ class PhysicsCalcTest {
         void testRadiatedPowerGivenArea() {
             // given
             final double distanceFromEarthToSun = LengthUnit.kilometersToMeters(149_600_000);
-            final double area = MathCalc.Geometry.sphereArea(distanceFromEarthToSun);
+            final double area = Geometry.sphereArea(distanceFromEarthToSun);
             // when
             final double power = PhysicsCalc.QuantumMechanics.radiatedPower(area);
             // then
@@ -2486,7 +2487,7 @@ class PhysicsCalcTest {
         @Test
         void testRadiatedPowerTemperature() {
             // given
-            final double sunArea = MathCalc.Geometry.sphereArea(LengthUnit.SUN_RADIUS);
+            final double sunArea = Geometry.sphereArea(LengthUnit.SUN_RADIUS);
             final double power = 3.845e26;
             final byte perfectEmissivity = 1;
             // when
@@ -2543,7 +2544,7 @@ class PhysicsCalcTest {
         @Test
         void testSpinMagnitude() {
             // given
-            final double quantumNumber = MathCalc.ONE_HALF;
+            final double quantumNumber = 0.5;
             // when
             final double magnitude = PhysicsCalc.QuantumMechanics.spinMagnitude(quantumNumber);
             // then
@@ -4038,7 +4039,7 @@ class PhysicsCalcTest {
             // given
             final byte voltage = 24;
             final double current = 3.75;
-            final double powerFactor = MathCalc.ONE_HALF;
+            final double powerFactor = 0.5;
             // when
             final double wattage = PhysicsCalc.Electromagnetism.acWattageSinglePhase(voltage, current, powerFactor);
             // then
@@ -4072,10 +4073,10 @@ class PhysicsCalcTest {
         @Test
         void testLorentzForce() {
             // given
-            final double magneticField = MathCalc.ONE_HALF;
+            final double magneticField = 0.5;
             final double charge = 1.602e-19;
             final double velocity = 2.998e7;
-            final double angle = MathCalc.Trigonometry.PI_OVER_2;
+            final double angle = Trigonometry.PI_OVER_2;
             // when
             final double force = PhysicsCalc.Electromagnetism.lorentzForce(magneticField, charge, velocity, angle);
             // then
@@ -4665,7 +4666,7 @@ class PhysicsCalcTest {
 
         static List<Arguments> capacitorSizeArgs() {
             return List.of(
-                Arguments.of(64, 16, MathCalc.ONE_HALF, DELTA1)
+                Arguments.of(64, 16, 0.5, DELTA1)
             );
         }
 
@@ -6037,7 +6038,7 @@ class PhysicsCalcTest {
             // given
             final double chainsawSoundIntensity = 0.1;
             final double distance = 2.23906;
-            final double power = chainsawSoundIntensity * MathCalc.Trigonometry.PI4 * distance * distance;
+            final double power = chainsawSoundIntensity * Trigonometry.PI4 * distance * distance;
             // when
             final double soundIntensity = PhysicsCalc.Acoustics.soundIntensityAtDistance(power, distance);
             // then
@@ -6365,7 +6366,7 @@ class PhysicsCalcTest {
         void testThermalResistanceOfHollowCylinder() {
             // given
             final short copperThermalConductivity = 401;
-            final double length = MathCalc.ONE_HALF;
+            final double length = 0.5;
             final double innerRadius = 0.1;
             final double outerRadius = 0.2;
             // when

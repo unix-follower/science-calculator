@@ -1,25 +1,35 @@
 package org.example.sciencecalc.physics;
 
+import org.example.sciencecalc.math.Algebra;
+import org.example.sciencecalc.math.Arithmetic;
 import org.example.sciencecalc.math.Constants;
-import org.example.sciencecalc.math.MathCalc;
-import org.example.sciencecalc.math.MathCalc.Algebra;
-import org.example.sciencecalc.math.MathCalc.Arithmetic;
-import org.example.sciencecalc.math.MathCalc.Geometry;
-import org.example.sciencecalc.math.MathCalc.LinearAlgebra;
-import org.example.sciencecalc.math.MathCalc.Trigonometry;
+import org.example.sciencecalc.math.Geometry;
+import org.example.sciencecalc.math.LinearAlgebra;
 import org.example.sciencecalc.math.NumberUtils;
+import org.example.sciencecalc.math.Trigonometry;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
-import static org.example.sciencecalc.math.MathCalc.Algebra.ln;
-import static org.example.sciencecalc.math.MathCalc.Algebra.log;
-import static org.example.sciencecalc.math.MathCalc.Algebra.nthRoot;
-import static org.example.sciencecalc.math.MathCalc.Algebra.squareRoot;
-import static org.example.sciencecalc.math.MathCalc.Arithmetic.reciprocal;
-import static org.example.sciencecalc.math.MathCalc.Geometry.crossSectionalAreaOfCircularWire;
+import static org.example.sciencecalc.math.Algebra.ln;
+import static org.example.sciencecalc.math.Algebra.log;
+import static org.example.sciencecalc.math.Algebra.nthRoot;
+import static org.example.sciencecalc.math.Algebra.squareRoot;
+import static org.example.sciencecalc.math.Arithmetic.ONE_EIGHTH;
+import static org.example.sciencecalc.math.Arithmetic.ONE_FIFTH;
+import static org.example.sciencecalc.math.Arithmetic.ONE_FOURTH;
+import static org.example.sciencecalc.math.Arithmetic.ONE_HALF;
+import static org.example.sciencecalc.math.Arithmetic.ONE_SIXTH;
+import static org.example.sciencecalc.math.Arithmetic.ONE_THIRD;
+import static org.example.sciencecalc.math.Arithmetic.ONE_TWELFTH;
+import static org.example.sciencecalc.math.Arithmetic.ONE_TWENTIETH;
+import static org.example.sciencecalc.math.Arithmetic.THREE_HALF;
+import static org.example.sciencecalc.math.Arithmetic.TWO_FIFTH;
+import static org.example.sciencecalc.math.Arithmetic.TWO_THIRDS;
+import static org.example.sciencecalc.math.Arithmetic.reciprocal;
+import static org.example.sciencecalc.math.Geometry.crossSectionalAreaOfCircularWire;
 import static org.example.sciencecalc.math.NumberUtils.checkGreater0;
 import static org.example.sciencecalc.physics.AccelerationUnit.GRAVITATIONAL_ACCELERATION_ON_EARTH;
 import static org.example.sciencecalc.physics.ElectricalChargeUnit.ELECTRON_CHARGE;
@@ -95,7 +105,7 @@ public final class PhysicsCalc {
      * @return U = 1/2 * Cv² assuming 0V at the beginning
      */
     public static double capacitorEnergy(double capacitance, double voltage) {
-        return MathCalc.ONE_HALF * capacitance * voltage * voltage;
+        return ONE_HALF * capacitance * voltage * voltage;
     }
 
     /**
@@ -104,7 +114,7 @@ public final class PhysicsCalc {
      * @return U = 1/2 * Li²
      */
     public static double inductorEnergy(double inductance, double current) {
-        return MathCalc.ONE_HALF * inductance * current * current;
+        return ONE_HALF * inductance * current * current;
     }
 
     /**
@@ -469,7 +479,7 @@ public final class PhysicsCalc {
          * @return d = (1 / 2) * a * t² + v₀ * t. The units are meters
          */
         public static double displacement(double acceleration, double initialVelocity, long timeInSeconds) {
-            return MathCalc.ONE_HALF * acceleration * timeInSeconds * timeInSeconds + initialVelocity * timeInSeconds;
+            return ONE_HALF * acceleration * timeInSeconds * timeInSeconds + initialVelocity * timeInSeconds;
         }
 
         /**
@@ -477,7 +487,7 @@ public final class PhysicsCalc {
          */
         public static double displacementOfVelocities(
             double initialVelocity, double finalVelocity, long timeInSeconds) {
-            return MathCalc.ONE_HALF * (finalVelocity + initialVelocity) * timeInSeconds;
+            return ONE_HALF * (finalVelocity + initialVelocity) * timeInSeconds;
         }
 
         /**
@@ -491,7 +501,7 @@ public final class PhysicsCalc {
          * @return s = (1 / 2) * g * t². The units are meters
          */
         public static double freeFallDistance(long fallTimeInSec) {
-            return MathCalc.ONE_HALF * GRAVITATIONAL_ACCELERATION_ON_EARTH * fallTimeInSec * fallTimeInSec;
+            return ONE_HALF * GRAVITATIONAL_ACCELERATION_ON_EARTH * fallTimeInSec * fallTimeInSec;
         }
 
         /**
@@ -835,7 +845,7 @@ public final class PhysicsCalc {
          */
         public static double angularDisplacementFromAngularAcceleration(
             double angularVelocity, double timeSeconds, double angularAcceleration) {
-            return (angularVelocity * timeSeconds) + (MathCalc.ONE_HALF * angularAcceleration
+            return (angularVelocity * timeSeconds) + (ONE_HALF * angularAcceleration
                 * timeSeconds * timeSeconds);
         }
 
@@ -888,7 +898,7 @@ public final class PhysicsCalc {
          * @return I = 2/5 * mr². The units are kg⋅m²
          */
         public static double massMomentOfInertiaOfBall(double massKg, double radiusMeters) {
-            return MathCalc.TWO_FIFTH * massKg * radiusMeters * radiusMeters;
+            return TWO_FIFTH * massKg * radiusMeters * radiusMeters;
         }
 
         /**
@@ -899,7 +909,7 @@ public final class PhysicsCalc {
          */
         public static double[] massMomentOfInertiaOfCircularHoop(double massKg, double radiusMeters) {
             final double inertiaZ = massKg * radiusMeters * radiusMeters;
-            return new double[]{MathCalc.ONE_HALF * inertiaZ, inertiaZ};
+            return new double[]{ONE_HALF * inertiaZ, inertiaZ};
         }
 
         /**
@@ -915,11 +925,11 @@ public final class PhysicsCalc {
             double massKg, double lengthMeters, double widthMeters, double heightMeters) {
             final double wSquared = widthMeters * widthMeters;
             final double hSquared = heightMeters * heightMeters;
-            final double lengthInertia = MathCalc.ONE_TWELFTH * massKg * (wSquared + hSquared);
+            final double lengthInertia = ONE_TWELFTH * massKg * (wSquared + hSquared);
             final double lSquared = lengthMeters * lengthMeters;
-            final double widthInertia = MathCalc.ONE_TWELFTH * massKg * (lSquared + hSquared);
-            final double heightInertia = MathCalc.ONE_TWELFTH * massKg * (lSquared + wSquared);
-            final double diagonalInertia = MathCalc.ONE_SIXTH * massKg * ((wSquared * hSquared + lSquared * hSquared
+            final double widthInertia = ONE_TWELFTH * massKg * (lSquared + hSquared);
+            final double heightInertia = ONE_TWELFTH * massKg * (lSquared + wSquared);
+            final double diagonalInertia = ONE_SIXTH * massKg * ((wSquared * hSquared + lSquared * hSquared
                 + lSquared * wSquared) / (lSquared + wSquared + hSquared));
             return new double[]{lengthInertia, widthInertia, heightInertia, diagonalInertia};
         }
@@ -933,8 +943,8 @@ public final class PhysicsCalc {
         public static double[] massMomentOfInertiaOfCylinder(double massKg, double radiusMeters, double heightMeters) {
             final double rSquared = radiusMeters * radiusMeters;
             return new double[]{
-                MathCalc.ONE_TWELFTH * massKg * (3 * rSquared + heightMeters * heightMeters),
-                MathCalc.ONE_HALF * massKg * rSquared
+                ONE_TWELFTH * massKg * (3 * rSquared + heightMeters * heightMeters),
+                ONE_HALF * massKg * rSquared
             };
         }
 
@@ -948,8 +958,8 @@ public final class PhysicsCalc {
             double massKg, double innerRadiusMeters, double outerRadiusMeters, double heightMeters) {
             final double radiusSqSum = outerRadiusMeters * outerRadiusMeters + innerRadiusMeters * innerRadiusMeters;
             return new double[]{
-                MathCalc.ONE_TWELFTH * massKg * (3 * radiusSqSum + heightMeters * heightMeters),
-                MathCalc.ONE_HALF * massKg * radiusSqSum
+                ONE_TWELFTH * massKg * (3 * radiusSqSum + heightMeters * heightMeters),
+                ONE_HALF * massKg * radiusSqSum
             };
         }
 
@@ -968,7 +978,7 @@ public final class PhysicsCalc {
          */
         public static double[] massMomentOfInertiaOfDisc(double massKg, double radiusMeters) {
             final double radiusSq = radiusMeters * radiusMeters;
-            return new double[]{MathCalc.ONE_FOURTH * massKg * radiusSq, MathCalc.ONE_HALF * massKg * radiusSq};
+            return new double[]{ONE_FOURTH * massKg * radiusSq, ONE_HALF * massKg * radiusSq};
         }
 
         /**
@@ -997,7 +1007,7 @@ public final class PhysicsCalc {
             final double aSq = semiaxisA * semiaxisA;
             final double bSq = semiaxisB * semiaxisB;
             final double cSq = semiaxisC * semiaxisC;
-            final double mass = MathCalc.ONE_FIFTH * massKg;
+            final double mass = ONE_FIFTH * massKg;
             return new double[]{mass * (bSq + cSq), mass * (aSq + cSq), mass * (aSq + bSq)};
         }
 
@@ -1022,7 +1032,7 @@ public final class PhysicsCalc {
             double commonSideLengthMeters, double massKg, double angleRad) {
             final double lSq = commonSideLengthMeters * commonSideLengthMeters;
             final double sinBeta = Trigonometry.sin(angleRad);
-            return MathCalc.ONE_HALF * massKg * lSq * (1 - MathCalc.TWO_THIRDS * sinBeta * sinBeta);
+            return ONE_HALF * massKg * lSq * (1 - TWO_THIRDS * sinBeta * sinBeta);
         }
 
         /**
@@ -1047,7 +1057,7 @@ public final class PhysicsCalc {
          * @return I = 1/12 m(w²+l²). The units are kg⋅m²
          */
         public static double massMomentOfRectangularPlate(double massKg, double widthMeters, double lengthMeters) {
-            return MathCalc.ONE_TWELFTH * massKg * (widthMeters * widthMeters + lengthMeters * lengthMeters);
+            return ONE_TWELFTH * massKg * (widthMeters * widthMeters + lengthMeters * lengthMeters);
         }
 
         /**
@@ -1058,7 +1068,7 @@ public final class PhysicsCalc {
          */
         public static double massMomentOfRegularPolygon(double massKg, double radiusMeters, long numberOfVertices) {
             final double sine = Trigonometry.sin(Math.PI / numberOfVertices);
-            return MathCalc.ONE_HALF * massKg * radiusMeters * radiusMeters * (1 - MathCalc.TWO_THIRDS * sine * sine);
+            return ONE_HALF * massKg * radiusMeters * radiusMeters * (1 - TWO_THIRDS * sine * sine);
         }
 
         /**
@@ -1071,8 +1081,8 @@ public final class PhysicsCalc {
             double massKg, double radiusMeters, double heightMeters) {
             final double rSq = radiusMeters * radiusMeters;
             return new double[]{
-                MathCalc.ONE_FOURTH * massKg * (rSq + 2 * heightMeters * heightMeters),
-                MathCalc.ONE_HALF * massKg * rSq
+                ONE_FOURTH * massKg * (rSq + 2 * heightMeters * heightMeters),
+                ONE_HALF * massKg * rSq
             };
         }
 
@@ -1099,14 +1109,14 @@ public final class PhysicsCalc {
          */
         public static double[] massMomentOfRod(double massKg, double lengthMeters) {
             final double lSq = lengthMeters * lengthMeters;
-            return new double[]{MathCalc.ONE_TWELFTH * massKg * lSq, MathCalc.ONE_THIRD * massKg * lSq};
+            return new double[]{ONE_TWELFTH * massKg * lSq, ONE_THIRD * massKg * lSq};
         }
 
         /**
          * @return I = 2/3 * mr². The units are kg⋅m²
          */
         public static double massMomentOfInertiaOfSphere(double massKg, double radiusMeters) {
-            return MathCalc.TWO_THIRDS * massKg * radiusMeters * radiusMeters;
+            return TWO_THIRDS * massKg * radiusMeters * radiusMeters;
         }
 
         /**
@@ -1116,7 +1126,7 @@ public final class PhysicsCalc {
             double massKg, double innerRadiusMeters, double outerRadiusMeters) {
             final double numerator = Math.pow(outerRadiusMeters, 5) - Math.pow(innerRadiusMeters, 5);
             final double denominator = Math.pow(outerRadiusMeters, 3) - Math.pow(innerRadiusMeters, 3);
-            return MathCalc.TWO_FIFTH * massKg * (numerator / denominator);
+            return TWO_FIFTH * massKg * (numerator / denominator);
         }
 
         /**
@@ -1127,7 +1137,7 @@ public final class PhysicsCalc {
          */
         public static double[] massMomentOfTetrahedron(double massKg, double sideMeters) {
             final double sSq = sideMeters * sideMeters;
-            return new double[]{MathCalc.ONE_TWENTIETH * massKg * sSq, MathCalc.ONE_TWELFTH * massKg * sSq};
+            return new double[]{ONE_TWENTIETH * massKg * sSq, ONE_TWELFTH * massKg * sSq};
         }
 
         /**
@@ -1140,8 +1150,8 @@ public final class PhysicsCalc {
             final double aSq = minorRadiusMeters * minorRadiusMeters;
             final double bSq = majorRadiusMeters * majorRadiusMeters;
             return new double[]{
-                MathCalc.ONE_FOURTH * massKg * (3 * aSq + 4 * bSq),
-                MathCalc.ONE_EIGHTH * massKg * (5 * aSq + 4 * bSq)
+                ONE_FOURTH * massKg * (3 * aSq + 4 * bSq),
+                ONE_EIGHTH * massKg * (5 * aSq + 4 * bSq)
             };
         }
 
@@ -1465,7 +1475,7 @@ public final class PhysicsCalc {
          * @return U = 1/2 kΔx². The units are joules
          */
         public static double elasticPotentialEnergy(double springForceConstant, double springStretchLength) {
-            return MathCalc.ONE_HALF * springForceConstant * springStretchLength * springStretchLength;
+            return ONE_HALF * springForceConstant * springStretchLength * springStretchLength;
         }
 
         /**
@@ -1484,7 +1494,7 @@ public final class PhysicsCalc {
          * @return KE = 0.5 × m × v². The units are J
          */
         public static double kineticEnergy(double massKg, double velocity) {
-            return MathCalc.ONE_HALF * massKg * velocity * velocity;
+            return ONE_HALF * massKg * velocity * velocity;
         }
 
         /**
@@ -1507,7 +1517,7 @@ public final class PhysicsCalc {
             final double mvSquared = massKg * velocity * velocity;
             final double avgForceN = reciprocal(2 * collisionDistanceMeters) * mvSquared;
             final double maximumForceN = mvSquared / collisionDistanceMeters;
-            final double energyJoules = MathCalc.ONE_HALF * mvSquared;
+            final double energyJoules = ONE_HALF * mvSquared;
             return new double[]{avgForceN, maximumForceN, energyJoules};
         }
 
@@ -1521,7 +1531,7 @@ public final class PhysicsCalc {
         public static double[] impactEnergyTime(double massKg, double velocity, double collisionTimeSeconds) {
             final double avgForceN = massKg * velocity / collisionTimeSeconds;
             final double maximumForceN = 2 * avgForceN;
-            final double energyJoules = MathCalc.ONE_HALF * massKg * velocity * velocity;
+            final double energyJoules = ONE_HALF * massKg * velocity * velocity;
             return new double[]{avgForceN, maximumForceN, energyJoules};
         }
 
@@ -1535,7 +1545,7 @@ public final class PhysicsCalc {
                                             double velocityOfCharge, double firearmMassKg) {
             final double firearmVelocity = (bulletMassGrams * bulletVelocity + powderChargeMassGrams * velocityOfCharge)
                 / (1000 * firearmMassKg);
-            final double recoilEnergyJoules = MathCalc.ONE_HALF * firearmMassKg * firearmVelocity * firearmVelocity;
+            final double recoilEnergyJoules = ONE_HALF * firearmMassKg * firearmVelocity * firearmVelocity;
             final double recoilImpulse = firearmMassKg * firearmVelocity; // N⋅s
             return new double[]{firearmVelocity, recoilEnergyJoules, recoilImpulse};
         }
@@ -1637,7 +1647,7 @@ public final class PhysicsCalc {
          * @return W = 1/2 m(v²₁-v²₀). The units are joules
          */
         public static double workFromVelocityChange(double massKg, double initialSpeed, double finalSpeed) {
-            return MathCalc.ONE_HALF * massKg * (finalSpeed * finalSpeed - initialSpeed * initialSpeed);
+            return ONE_HALF * massKg * (finalSpeed * finalSpeed - initialSpeed * initialSpeed);
         }
 
         /**
@@ -1865,7 +1875,7 @@ public final class PhysicsCalc {
          * @return Tₑ = 1/2(M+√(M²+T²)) = π/32 × σ_b(ₘₐₓ) ⋅ d³₀(1−k⁴). The units are N⋅m
          */
         public static double equivalentBendingMoment(double bendingMoment, double torque) {
-            return MathCalc.ONE_HALF * (bendingMoment + squareRoot(bendingMoment * bendingMoment + torque * torque));
+            return ONE_HALF * (bendingMoment + squareRoot(bendingMoment * bendingMoment + torque * torque));
         }
 
         /**
@@ -1885,7 +1895,7 @@ public final class PhysicsCalc {
          */
         public static double fluctuatingEquivalentBendingMoment(
             double torque, double bendingMoment, double bendingFactor, double torsionFactor) {
-            return MathCalc.ONE_HALF * (bendingFactor * bendingMoment
+            return ONE_HALF * (bendingFactor * bendingMoment
                 + squareRoot(Math.pow(bendingFactor * bendingMoment, 2) + Math.pow(torsionFactor * torque, 2)));
         }
 
@@ -2059,7 +2069,7 @@ public final class PhysicsCalc {
             final double diff = largePulleyDiameterM - smallPulleyDiameterM;
             return ((largePulleyDiameterM + smallPulleyDiameterM) * Trigonometry.PI_OVER_2)
                 + diff * Trigonometry.sinInverse(diff / (2 * pulleyCenterDistanceM))
-                + 2 * squareRoot(pulleyCenterDistanceM * pulleyCenterDistanceM - MathCalc.ONE_FOURTH * diff * diff);
+                + 2 * squareRoot(pulleyCenterDistanceM * pulleyCenterDistanceM - ONE_FOURTH * diff * diff);
         }
 
         /**
@@ -2343,7 +2353,7 @@ public final class PhysicsCalc {
          * @return Magnitude: S = √(s(s+1)) * h/(2π). The units are J·s
          */
         public static double spinMagnitude(double quantumNumber) {
-            if (quantumNumber != -MathCalc.ONE_HALF && quantumNumber != MathCalc.ONE_HALF) {
+            if (quantumNumber != -ONE_HALF && quantumNumber != ONE_HALF) {
                 throw new IllegalArgumentException("The valid quantum number is ±1/2");
             }
             return squareRoot(quantumNumber * (quantumNumber + 1)) * PLANCK_CONSTANT / Trigonometry.PI2;
@@ -2358,7 +2368,7 @@ public final class PhysicsCalc {
             final double s = spin;
             final double l = orbital;
             final double j = l + s;
-            final double gJ = MathCalc.THREE_HALF + (s * (s + 1) - l * (l + 1)) / (2 * j * (j + 1));
+            final double gJ = THREE_HALF + (s * (s + 1) - l * (l + 1)) / (2 * j * (j + 1));
             return -gJ * squareRoot(j * (j + 1));
         }
 
@@ -2493,7 +2503,7 @@ public final class PhysicsCalc {
          * @return p = 1/2 × ρv². The units are pascals
          */
         public static double dynamicPressure(double fluidDensity, double fluidVelocity) {
-            return MathCalc.ONE_HALF * fluidDensity * fluidVelocity * fluidVelocity;
+            return ONE_HALF * fluidDensity * fluidVelocity * fluidVelocity;
         }
 
         /**
@@ -2988,7 +2998,7 @@ public final class PhysicsCalc {
             double heightMeters2) {
             final double g = GRAVITATIONAL_ACCELERATION_ON_EARTH;
             final double term = pressurePa - pressurePa2
-                + MathCalc.ONE_HALF * fluidDensity * fluidSpeed * fluidSpeed
+                + ONE_HALF * fluidDensity * fluidSpeed * fluidSpeed
                 + fluidDensity * g * (heightMeters - heightMeters2);
             return squareRoot(2 * term / fluidDensity);
         }
@@ -3126,7 +3136,7 @@ public final class PhysicsCalc {
                     "Moody approximation only works for Reynold's number within the limits (4000 - 5*10⁸)");
             }
             final double relativeRoughness = surfaceRoughnessM / hydraulicDiameterM;
-            return 0.0055 * (1 + Math.pow(20_000 * relativeRoughness + 1e6 / reynoldsNumber, MathCalc.ONE_THIRD));
+            return 0.0055 * (1 + Math.pow(20_000 * relativeRoughness + 1e6 / reynoldsNumber, ONE_THIRD));
         }
 
         /**
@@ -3303,7 +3313,7 @@ public final class PhysicsCalc {
          * @return E = 1/2⋅m⋅v². The units are joules
          */
         public static double bulletEnergy(double bulletMassKg, double bulletVelocity) {
-            return MathCalc.ONE_HALF * bulletMassKg * bulletVelocity * bulletVelocity;
+            return ONE_HALF * bulletMassKg * bulletVelocity * bulletVelocity;
         }
 
         /**
@@ -4164,14 +4174,14 @@ public final class PhysicsCalc {
          * @return E = ½ × C × V². The units are Joules
          */
         public static double energyStoredInCapacitor(double capacityFarads, double voltageVolts) {
-            return MathCalc.ONE_HALF * capacityFarads * voltageVolts * voltageVolts;
+            return ONE_HALF * capacityFarads * voltageVolts * voltageVolts;
         }
 
         /**
          * @return E = ½ × L × I². The units are Joules
          */
         public static double inductorEnergy(double inductanceHenries, double currentAmperes) {
-            return MathCalc.ONE_HALF * inductanceHenries * currentAmperes * currentAmperes;
+            return ONE_HALF * inductanceHenries * currentAmperes * currentAmperes;
         }
 
         /**
@@ -5220,7 +5230,7 @@ public final class PhysicsCalc {
          */
         public static double mosfetKParameterFromElectronMobility(
             double lengthMeters, double widthMeters, double capacitancePerUnitArea, double electronMobility) {
-            return MathCalc.ONE_HALF * widthMeters / lengthMeters * electronMobility * capacitancePerUnitArea;
+            return ONE_HALF * widthMeters / lengthMeters * electronMobility * capacitancePerUnitArea;
         }
 
         /**
