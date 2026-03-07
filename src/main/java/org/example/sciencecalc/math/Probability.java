@@ -122,4 +122,124 @@ public final class Probability {
             - Arithmetic.reciprocal(controlGroupDisease + controlGroupNoDisease))
         );
     }
+
+    /**
+     * Probability of single events. A and B both occurring.
+     *
+     * @param probabilityA range 0-1
+     * @param probabilityB range 0-1
+     * @return P(A∩B) = P(A|B) * P(B) or P(A∩B) = P(B|A) * P(A)
+     */
+    public static double intersectionProbability(double probabilityA, double probabilityB) {
+        return probabilityA * probabilityB;
+    }
+
+    /**
+     * Probability of single events. At least one of the event occurs
+     *
+     * @param probabilityA range 0-1
+     * @param probabilityB range 0-1
+     * @return P(A∪B) = P(A) + P(B) - P(A∩B)
+     */
+    public static double unionProbability(double probabilityA, double probabilityB) {
+        return probabilityA + probabilityB - intersectionProbability(probabilityA, probabilityB);
+    }
+
+    /**
+     * Probability of single events. Exactly one of these events occurs.
+     *
+     * @param probabilityA range 0-1
+     * @param probabilityB range 0-1
+     * @return P(A∆B) = P(A) + P(B) - 2P(A∩B)
+     */
+    public static double symmetricDifferenceProbability(double probabilityA, double probabilityB) {
+        return probabilityA + probabilityB - 2 * intersectionProbability(probabilityA, probabilityB);
+    }
+
+    /**
+     * Probability of single events. Neither A nor B occurs.
+     *
+     * @param probabilityA range 0-1
+     * @param probabilityB range 0-1
+     * @return P((A∪B)') = 1 - P(A∪B)
+     */
+    public static double complementProbability(double probabilityA, double probabilityB) {
+        return 1 - unionProbability(probabilityA, probabilityB);
+    }
+
+    /**
+     * Probability of single events. A NOT occurring. The same formula is for B NOT occurring
+     *
+     * @param probabilityA range 0-1
+     * @return P(A') = 1 - P(A) or P(B') = 1 - P(B)
+     */
+    public static double complementAProbability(double probabilityA) {
+        return 1 - probabilityA;
+    }
+
+    /**
+     * Probability of the series of events. A always occurs
+     *
+     * @param probabilityA range 0-1
+     * @return P(A)ⁿ
+     */
+    public static double probabilityOfSeriesAAlwaysOccurs(double probabilityA, int numberOfTrials) {
+        return Math.pow(probabilityA, numberOfTrials);
+    }
+
+    /**
+     * Probability of the series of events. A never occurs
+     *
+     * @param probabilityA range 0-1
+     * @return (1 - P(A))ⁿ
+     */
+    public static double probabilityOfSeriesANeverOccurs(double probabilityA, int numberOfTrials) {
+        return Math.pow(1 - probabilityA, numberOfTrials);
+    }
+
+    /**
+     * Probability of the series of events. A occurs at least once
+     *
+     * @param probabilityA range 0-1
+     * @return 1 - (1 - P(A))ⁿ
+     */
+    public static double probabilityOfSeriesAOccursAtLeastOnce(double probabilityA, int numberOfTrials) {
+        return 1 - Math.pow(1 - probabilityA, numberOfTrials);
+    }
+
+    /**
+     * Reversed: P(B|A) = (P(A|B) × P(B)) / P(A). Probability of B under the condition A.
+     * Where:
+     * P(A), P(B) – Probability of event A and even B occurring, respectively;
+     * P(A|B) – Conditional probability of event A occurring given that B has happened;
+     * P(B|A) – Conditional probability of event B occurring given that A has happened.
+     *
+     * @param probabilityA                range 0-1
+     * @param probabilityB                range 0-1
+     * @param probabilityBUnderConditionA range 0-1
+     * @return P(A|B) = (P(B|A) × P(A)) / P(B). Probability of A under the condition B.
+     */
+    public static double bayesTheorem(double probabilityA, double probabilityB, double probabilityBUnderConditionA) {
+        return probabilityBUnderConditionA * probabilityA / probabilityB;
+    }
+
+    /**
+     * For the independent events
+     *
+     * @param probabilityA range 0-1
+     * @param probabilityB range 0-1
+     * @return P(A and B) = P(A) × P(B)
+     */
+    public static double jointProbability(double probabilityA, double probabilityB) {
+        return probabilityA * probabilityB;
+    }
+
+    /**
+     * @param probabilityA       range 0-1
+     * @param probabilityAGivenB range 0-1
+     * @return P(A and B) = P(A) × P(A|B)
+     */
+    public static double jointProbabilityOfDependentEvents(double probabilityA, double probabilityAGivenB) {
+        return probabilityA * probabilityAGivenB;
+    }
 }

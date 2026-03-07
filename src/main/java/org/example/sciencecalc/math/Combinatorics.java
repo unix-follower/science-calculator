@@ -1,5 +1,7 @@
 package org.example.sciencecalc.math;
 
+import java.math.BigInteger;
+
 public final class Combinatorics {
     private Combinatorics() {
     }
@@ -7,14 +9,15 @@ public final class Combinatorics {
     /**
      * Focus on the selection of items (where the order does not matter).
      *
-     * @return ₙCᵣ = n! / (r!(n - r)!). Number of possible combinations (without repetitions).
+     * @return C(n,r) = n! / (r!(n - r)!). ₙCᵣ. Number of possible combinations (without repetitions).
      */
     public static long combinations(long totalObjects, long sampleSize) {
         checkCombinationInputs(totalObjects, sampleSize);
-        final long numerator = Arithmetic.factorial(totalObjects);
-        final long denominator = Arithmetic.factorial(sampleSize)
-            * Arithmetic.factorial(totalObjects - sampleSize);
-        return numerator / denominator;
+        final var numerator = Arithmetic.factorial(new BigInteger(Long.toString(totalObjects)));
+        final var denominator = Arithmetic.factorial(new BigInteger(Long.toString(sampleSize)))
+            .multiply(Arithmetic.factorial(new BigInteger(Long.toString(totalObjects - sampleSize))));
+        final var result = numerator.divide(denominator);
+        return result.longValue();
     }
 
     private static void checkNonNegativeCombinationInputs(long totalObjects, long sampleSize) {
@@ -44,7 +47,7 @@ public final class Combinatorics {
     /**
      * Focus on the order of arrangement (where the sequence matters).
      *
-     * @return ₙPᵣ = n! / ((n - r)!). Number of possible permutations (without repetitions).
+     * @return P(n,r) = n! / ((n - r)!). ₙPᵣ. Number of possible permutations (without repetitions).
      */
     public static long permutations(long totalObjects, long sampleSize) {
         checkNonNegativeCombinationInputs(totalObjects, sampleSize);

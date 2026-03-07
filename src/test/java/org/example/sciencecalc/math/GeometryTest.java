@@ -7,12 +7,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GeometryTest {
     private static final double DELTA1 = 0.1;
+    private static final double DELTA2 = 0.01;
     private static final double DELTA3 = 0.001;
     private static final double DELTA4 = 0.0001;
     private static final double DELTA5 = 0.00001;
@@ -1385,5 +1387,16 @@ class GeometryTest {
         final double area = Geometry.crossSectionalAreaOfTube(diameter, thickness);
         // then
         assertEquals(28.274, area, DELTA3); // mm²
+    }
+
+    @Test
+    void testLeastSquaresRegressionLine() {
+        // given
+        final double[] independentVariables = new double[]{0, 2, 4};
+        final double[] dependentVariables = new double[]{1, 4, 4};
+        // when
+        final double[] fittedModel = Geometry.leastSquaresRegressionLine(independentVariables, dependentVariables);
+        // then
+        assertArrayEquals(new double[]{0.75, 1.5}, fittedModel, DELTA2);
     }
 }

@@ -17,6 +17,7 @@ class StatsTest {
     private static final double DELTA3 = 0.001;
     private static final double DELTA4 = 0.0001;
     private static final double DELTA5 = 0.00001;
+    private static final double DELTA6 = 0.000001;
 
     @Nested
     class Descriptive {
@@ -385,6 +386,103 @@ class StatsTest {
             // then
             assertEquals(36.0459, std, DELTA4);
         }
+
+        @Test
+        void testConstantOfProportionality() {
+            // given
+            final byte x = 10;
+            final byte y = 20;
+            // when
+            final double constant = Stats.Descriptive.constantOfProportionality(x, y);
+            // then
+            assertEquals(2, constant, DELTA1);
+        }
+
+        @Test
+        void testNormalDistribution() {
+            // given
+            final short mean = 251;
+            final byte standardDeviation = 5;
+            final short rawScoreValue = 253;
+            // when
+            final double probability = Stats.Descriptive.normalDistribution(mean, standardDeviation, rawScoreValue);
+            // then
+            assertEquals(0.0737, probability, DELTA4);
+        }
+
+        @Test
+        void testBinomialDistribution() {
+            // given
+            final byte numOfEvents = 5;
+            final byte numOfSuccesses = 3;
+            final double probabilityOfSuccessPerEvent = 0.667;
+            // when
+            final double probability = Stats.Descriptive
+                .binomialDistribution(numOfEvents, numOfSuccesses, probabilityOfSuccessPerEvent);
+            final double meanNumberOfSuccesses = Stats.Descriptive
+                .binomialDistributionMean(numOfEvents, probabilityOfSuccessPerEvent);
+            final double variance = Stats.Descriptive
+                .binomialDistributionVariance(numOfEvents, probabilityOfSuccessPerEvent);
+            // then
+            assertEquals(0.32905, probability, DELTA5); // 32.905%
+            assertEquals(3.335, meanNumberOfSuccesses, DELTA3);
+            assertEquals(1.1106, variance, DELTA4);
+        }
+
+        @Test
+        void testNegativeBinomialDistribution() {
+            // given
+            final byte numOfEvents = 25;
+            final byte numOfSuccesses = 15;
+            final double probabilityOfOneSuccess = 0.4;
+            // when
+            final double probability = Stats.Descriptive
+                .negativeBinomialDistribution(numOfEvents, numOfSuccesses, probabilityOfOneSuccess);
+            // then
+            assertEquals(0.012733, probability, DELTA6);
+        }
+
+        @Test
+        void testGeometricDistribution() {
+            // given
+            final byte numOfFailures = 1;
+            final double probabilityOfSuccess = 1. / 6;
+            // when
+            final double probability = Stats.Descriptive.geometricDistribution(numOfFailures, probabilityOfSuccess);
+            final double mean = Stats.Descriptive.geometricDistributionMean(probabilityOfSuccess);
+            final double variance = Stats.Descriptive.geometricDistributionVariance(probabilityOfSuccess);
+            // then
+            assertEquals(0.138889, probability, DELTA6);
+            assertEquals(5, mean, DELTA1);
+            assertEquals(30, variance, DELTA1);
+        }
+
+        @Test
+        void testChiSquare() {
+            // given
+            final byte observedValue = 5;
+            final byte expectedValue = 9;
+            // when
+            final double result = Stats.Descriptive.chiSquare(observedValue, expectedValue);
+            // then
+            assertEquals(1.7778, result, DELTA4);
+        }
+
+        @Test
+        void testExponentialDistribution() {
+            // given
+            final double rateParameter = 0.25; // 1/4
+            final byte timeBetweenEvents = 3;
+            // when
+            final double higher = Stats.Descriptive.exponentialDistributionHigher(rateParameter, timeBetweenEvents);
+            final double lower = Stats.Descriptive.exponentialDistributionLower(rateParameter, timeBetweenEvents);
+            // then
+            assertEquals(0.472367, higher, DELTA6);
+            assertEquals(0.527633, lower, DELTA6);
+            assertEquals(4, Arithmetic.reciprocal(rateParameter), DELTA1); // mean
+            assertEquals(2.77259, Algebra.ln(2) / rateParameter, DELTA5); // median
+            assertEquals(16, Arithmetic.reciprocal(rateParameter * rateParameter), DELTA1); // variance
+        }
     }
 
     @Nested
@@ -414,6 +512,53 @@ class StatsTest {
             final double zScore = Stats.Inferential.zScore(experimentalResult, mean, standardDeviation);
             // then
             assertEquals(0.4138, zScore, DELTA4);
+        }
+
+        @Test
+        void testCoefficientOfDetermination() {
+            // given
+            final double[] independentVariables = new double[]{0, 2, 4};
+            final double[] dependentVariables = new double[]{1, 4, 4};
+            // when
+            final double coeff = Stats.Inferential.coefficientOfDetermination(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.75, coeff, DELTA2);
+        }
+
+        @Test
+        void testExponentialRegression() {
+            // given
+            final double[] independentVariables = new double[]{1, 2, 3, 4, 5};
+            final double[] dependentVariables = new double[]{1, 3, 9, 27, 81};
+            // when
+            final double[] fittedCoeffs = Stats.Inferential
+                .exponentialRegression(independentVariables, dependentVariables);
+            // then
+            assertArrayEquals(new double[]{0.3333, 3}, fittedCoeffs, DELTA4);
+        }
+
+        @Test
+        void testCubicRegression() {
+            // given
+            final double[] independentVariables = new double[]{0, 2, 3, 4, 5};
+            final double[] dependentVariables = new double[]{1, 0, 3, 5, 4};
+            // when
+            final double[] fittedCoeffs = Stats.Inferential
+                .cubicRegression(independentVariables, dependentVariables);
+            // then y = 0.9973 - 5.0755x + 3.0687x² - 0.3868x³
+            assertArrayEquals(new double[]{0.9973, -5.0755, 3.0687, -0.3868}, fittedCoeffs, DELTA4);
+        }
+
+        @Test
+        void testPolynomialRegression() {
+            // given
+            final double[] independentVariables = new double[]{0, 2, 3, 4, 5, 6};
+            final double[] dependentVariables = new double[]{1, 0, 3, 5, 4, 2};
+            // when
+            final double[] fittedCoeffs = Stats.Inferential
+                .polynomialRegression(independentVariables, dependentVariables);
+            // then y = 0.0747x⁴ - 1.1808x³ + 5.7366x² - 7.8798x + 1.004
+            assertArrayEquals(new double[]{1.004, -7.8798, 5.7366, -1.1808, 0.0747}, fittedCoeffs, DELTA4);
         }
     }
 }
