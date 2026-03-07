@@ -8,6 +8,8 @@ class ProbabilityTest {
     private static final double DELTA1 = 0.1;
     private static final double DELTA2 = 0.01;
     private static final double DELTA4 = 0.0001;
+    private static final double DELTA5 = 0.00001;
+    private static final double DELTA6 = 0.000001;
 
     @Test
     void testAccuracy() {
@@ -132,5 +134,127 @@ class ProbabilityTest {
             exposedGroupNoDisease, controlGroupDisease, controlGroupNoDisease, zScore);
         // then
         assertEquals(15.34, upperBound, DELTA2);
+    }
+
+    @Test
+    void testIntersectionProbability() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final double probabilityB = 0.3; // 30 %
+        // when
+        final double probability = Probability.intersectionProbability(probabilityA, probabilityB);
+        // then 6%
+        assertEquals(0.06, probability, DELTA2);
+    }
+
+    @Test
+    void testUnionProbability() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final double probabilityB = 0.3; // 30 %
+        // when
+        final double probability = Probability.unionProbability(probabilityA, probabilityB);
+        // then 44%
+        assertEquals(0.44, probability, DELTA2);
+    }
+
+    @Test
+    void testSymmetricDifferenceProbability() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final double probabilityB = 0.3; // 30 %
+        // when
+        final double probability = Probability.symmetricDifferenceProbability(probabilityA, probabilityB);
+        // then 38%
+        assertEquals(0.38, probability, DELTA2);
+    }
+
+    @Test
+    void testComplementProbability() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final double probabilityB = 0.3; // 30 %
+        // when
+        final double probability = Probability.complementProbability(probabilityA, probabilityB);
+        // then 56%
+        assertEquals(0.56, probability, DELTA2);
+    }
+
+    @Test
+    void testComplementAProbability() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        // when
+        final double probability = Probability.complementAProbability(probabilityA);
+        // then 56%
+        assertEquals(0.8, probability, DELTA2);
+    }
+
+    @Test
+    void testProbabilityOfSeriesAAlwaysOccurs() {
+        // given
+        final double probabilityA = 0.9; // 90 %
+        final byte numberOfTrials = 10;
+        // when
+        final double probability = Probability.probabilityOfSeriesAAlwaysOccurs(probabilityA, numberOfTrials);
+        // then 34.868%
+        assertEquals(0.34868, probability, DELTA5);
+    }
+
+    @Test
+    void testProbabilityOfSeriesANeverOccurs() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final byte numberOfTrials = 10;
+        // when
+        final double probability = Probability.probabilityOfSeriesANeverOccurs(probabilityA, numberOfTrials);
+        // then 10.7374%
+        assertEquals(0.107374, probability, DELTA6);
+    }
+
+    @Test
+    void testProbabilityOfSeriesAOccursAtLeastOnce() {
+        // given
+        final double probabilityA = 0.2; // 20 %
+        final byte numberOfTrials = 10;
+        // when
+        final double probability = Probability
+            .probabilityOfSeriesAOccursAtLeastOnce(probabilityA, numberOfTrials);
+        // then 56%
+        assertEquals(0.89263, probability, DELTA5);
+    }
+
+    @Test
+    void testBayesTheorem() {
+        // given
+        final double probabilityOfRain = 0.2;
+        final double probabilityOfClouds = 0.45;
+        final double cloudsOnRainyDay = 0.6;
+        // when
+        final double probability = Probability.bayesTheorem(probabilityOfRain, probabilityOfClouds, cloudsOnRainyDay);
+        // then the probability of rain occurring given the cloudy morning
+        assertEquals(0.26667, probability, DELTA5);
+    }
+
+    @Test
+    void testJointProbability() {
+        // given
+        final double probabilityA = 0.8;
+        final double probabilityB = 0.6;
+        // when
+        final double probability = Probability.jointProbability(probabilityA, probabilityB);
+        // then
+        assertEquals(0.48, probability, DELTA2);
+    }
+
+    @Test
+    void testJointProbabilityOfDependentEvents() {
+        // given
+        final double probabilityA = 0.8;
+        final double probabilityB = 0.7;
+        // when
+        final double probability = Probability.jointProbabilityOfDependentEvents(probabilityA, probabilityB);
+        // then
+        assertEquals(0.56, probability, DELTA2);
     }
 }

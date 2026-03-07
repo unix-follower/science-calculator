@@ -1,6 +1,8 @@
 package org.example.sciencecalc.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 import static org.example.sciencecalc.math.Algebra.squareRoot;
 import static org.example.sciencecalc.math.Arithmetic.ONE_FOURTH;
@@ -1269,5 +1271,39 @@ public final class Geometry {
      */
     public static double triangleArea(double base, double height) {
         return ONE_HALF * base * height;
+    }
+
+    /**
+     * Linear model: y = b + ax.
+     * Sₓ = ∑xᵢ = x₁ + x₂ + x₃ + … ;
+     * Sᵧ = ∑yᵢ = y₁ + y₂ + y₃ + … ;
+     * Sₓₓ = ∑xᵢ² = x₁² + x₂² + x₃² + … ;
+     * Sᵧᵧ = ∑yᵢ² = y₁² + y₂² + y₃² + … ;
+     * Sₓᵧ = ∑xᵢyᵢ = x₁y₁ + x₂y₂ + x₃y₃ + … ;
+     * Δ = n·Sₓₓ - Sₓ².
+     * a = (n·Sₓᵧ - Sₓ·Sᵧ) / Δ;
+     * b = (Sₓₓ·Sᵧ - Sₓ·Sₓᵧ) / Δ.
+     *
+     * @param independentVariables x
+     * @param dependentVariables   y
+     */
+    public static double[] leastSquaresRegressionLine(double[] independentVariables, double[] dependentVariables) {
+        Objects.requireNonNull(independentVariables);
+        Objects.requireNonNull(dependentVariables);
+        LinAlgUtils.checkSameDimensions(independentVariables, dependentVariables);
+        final double sx = Arrays.stream(independentVariables).sum();
+        final double sy = Arrays.stream(dependentVariables).sum();
+        final double sxx = Arrays.stream(independentVariables).map(x -> x * x).sum();
+        double sxy = 0;
+        for (int i = 0; i < independentVariables.length; i++) {
+            final double x = independentVariables[i];
+            final double y = dependentVariables[i];
+            sxy += x * y;
+        }
+        final int n = independentVariables.length;
+        final double delta = n * sxx - sx * sx;
+        final double slope = (n * sxy - sx * sy) / delta; // a
+        final double intercept = (sxx * sy - sx * sxy) / delta; // b
+        return new double[]{slope, intercept};
     }
 }

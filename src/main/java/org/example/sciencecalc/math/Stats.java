@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static org.example.sciencecalc.math.Algebra.squareRoot;
+import static org.example.sciencecalc.math.LinAlgUtils.checkSameDimensions;
 import static org.example.sciencecalc.math.NumberUtils.checkGreater0;
 
 public final class Stats {
@@ -207,13 +208,23 @@ public final class Stats {
 
         /**
          * Population Mean μ = ∑Xᵢ / N
+         * x̄ is X-bar.
          *
-         * @return Sample Mean x̄ [X-bar] = ∑xᵢ / n = (x₁ + x₂ + ... + xₙ) / n
+         * @return Sample Mean = x̄ = 1/n * ∑ⁿᵢ₌₁(xᵢ) = ∑xᵢ / n = (x₁ + x₂ + ... + xₙ) / n
          */
         public static double mean(double[] dataset) {
             Objects.requireNonNull(dataset);
             Arrays.sort(dataset);
             return Arrays.stream(dataset).sum() / dataset.length;
+        }
+
+        /**
+         * @return Sample Mean = x̄² = 1/n * ∑ⁿᵢ₌₁(xᵢ²) = ∑xᵢ / n = (x₁ + x₂ + ... + xₙ) / n
+         */
+        public static double meanOfSquares(double[] dataset) {
+            Objects.requireNonNull(dataset);
+            Arrays.sort(dataset);
+            return Arrays.stream(dataset).map(x -> x * x).sum() / dataset.length;
         }
 
         /**
@@ -401,6 +412,67 @@ public final class Stats {
         }
 
         /**
+         * @return Sₓᵧ = ∑ⁿᵢ₌₁(xᵢ−x̄)(yᵢ−ȳ)
+         */
+        public static double sumOfProducts(double[] independentVariables, double[] dependentVariables,
+                                           double meanX, double meanY) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
+            double sum = 0;
+            for (int i = 0; i < independentVariables.length; i++) {
+                final double x = independentVariables[i];
+                final double y = dependentVariables[i];
+                final double prod = (x - meanX) * (y - meanY);
+                sum += prod;
+            }
+            return sum;
+        }
+
+        /**
+         * @return Sₓ²ₓ² = ∑ⁿᵢ₌₁(xᵢ²−x̄²)²
+         */
+        public static double sumOfSquaredDeviationsOfSquares(double[] independentVariables, double mean) {
+            Objects.requireNonNull(independentVariables);
+            double sum = 0;
+            for (double x : independentVariables) {
+                sum += Math.pow(x * x - mean * mean, 2);
+            }
+            return sum;
+        }
+
+        /**
+         * @return Sₓ²ᵧ = ∑ⁿᵢ₌₁(xᵢ²−x̄²)(yᵢ−ȳ)
+         */
+        public static double sumOfProductsOfDeviations(double[] independentVariables, double meanX,
+                                                       double[] dependentVariables, double meanY) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
+            double sum = 0;
+            for (int i = 0; i < independentVariables.length; i++) {
+                final double x = independentVariables[i];
+                final double y = dependentVariables[i];
+                sum += (x * x - meanX * meanX) * (y - meanY);
+            }
+            return sum;
+        }
+
+        /**
+         * Between a variable and its own square.
+         *
+         * @return Sₓₓ² = ∑ⁿᵢ₌₁(xᵢ−x̄)²(xᵢ²−x̄²)
+         */
+        public static double sumOfProductsOfDeviations(double[] independentVariables, double mean) {
+            Objects.requireNonNull(independentVariables);
+            double sum = 0;
+            for (double x : independentVariables) {
+                sum += Math.pow(x - mean, 2) * (x * x - mean * mean);
+            }
+            return sum;
+        }
+
+        /**
          * @return ∑ⁿᵢ₌₁(xᵢ−x̄)³
          */
         public static double sumOfCubes(double[] dataset) {
@@ -426,13 +498,14 @@ public final class Stats {
          * where:
          * e is the column-vector;
          * eᵀ is the transpose of e, i.e., a row-vector.
+         * SSE = ∑(yᵢ - ŷᵢ)²
          *
          * @return SSE = Σᵢ(xᵢ- yᵢ)²
          */
         public static double sumOfSquaredErrors(double[] predictedValues, double[] actualValues) {
             Objects.requireNonNull(predictedValues);
             Objects.requireNonNull(actualValues);
-            LinAlgUtils.checkSameDimensions(predictedValues, actualValues);
+            checkSameDimensions(predictedValues, actualValues);
             double sumOfSquaredErrors = 0;
             for (int i = 0; i < predictedValues.length; i++) {
                 sumOfSquaredErrors += Math.pow(actualValues[i] - predictedValues[i], 2);
@@ -550,7 +623,7 @@ public final class Stats {
         public static double pearsonCorrelation(double[] independentVariables, double[] dependentVariables) {
             Objects.requireNonNull(independentVariables);
             Objects.requireNonNull(dependentVariables);
-            LinAlgUtils.checkSameDimensions(independentVariables, dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
             final double xMean = mean(independentVariables);
             final double yMean = mean(dependentVariables);
             final double numerator = LinearAlgebra.dotProduct(independentVariables, dependentVariables)
@@ -613,7 +686,7 @@ public final class Stats {
         public static double spearmansRankCorrelation(double[] independentVariables, double[] dependentVariables) {
             Objects.requireNonNull(independentVariables);
             Objects.requireNonNull(dependentVariables);
-            LinAlgUtils.checkSameDimensions(independentVariables, dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
             final double[] xRanks = getRanks(independentVariables);
             final double[] yRanks = getRanks(dependentVariables);
             double sum = 0;
@@ -739,6 +812,7 @@ public final class Stats {
                 speciesAbundance += species * (species - 1);
             }
             final double denominator = total * (total - 1);
+            assert denominator > 0;
             return speciesAbundance / denominator;
         }
 
@@ -816,6 +890,156 @@ public final class Stats {
                 / (totalSamples - 1);
             return squareRoot(sampleVariance);
         }
+
+        /**
+         * The constant of proportionality is the same as a slope. It is defined as the m within the y = mx + c.
+         * It can be negative.
+         *
+         * @param independentVariable x
+         * @param dependentVariable   y
+         * @return constant of proportionality = Y / X
+         */
+        public static double constantOfProportionality(double independentVariable, double dependentVariable) {
+            return dependentVariable / independentVariable;
+        }
+
+        /**
+         * Exactly r successes: P(X = r)
+         * r or more successes: P(X ≥ r)
+         * r or fewer successes: P(X ≤ r)
+         * Between r₀ and r₁ successes P(r₀ ≤ X ≤ r₁)
+         *
+         * @param numberOfEvents          n
+         * @param numberOfSuccesses       r
+         * @param probabilityOfOneSuccess p
+         * @return P(X=r) = nCr * pʳ * (1 - p)ⁿ⁻ʳ
+         */
+        public static double binomialDistribution(
+            long numberOfEvents, long numberOfSuccesses, double probabilityOfOneSuccess) {
+            NumberUtils.checkGreater(numberOfEvents, -1);
+            NumberUtils.checkGreater(numberOfSuccesses, -1);
+            if (probabilityOfOneSuccess < 0 || probabilityOfOneSuccess > 1) {
+                throw new IllegalArgumentException("Probability of one success must be between 0 and 1.");
+            }
+            if (numberOfSuccesses > numberOfEvents) {
+                throw new IllegalArgumentException(
+                    "Number of required successes cannot exceed the number of events.");
+            }
+
+            final long numberOfCombinations = Combinatorics.combinations(numberOfEvents, numberOfSuccesses);
+
+            return numberOfCombinations * Math.pow(probabilityOfOneSuccess, numberOfSuccesses) *
+                Math.pow(1 - probabilityOfOneSuccess, (double) numberOfEvents - numberOfSuccesses);
+        }
+
+        /**
+         * @param probabilityOfSuccessPerEvent range 0-1
+         * @return μ = np
+         */
+        public static double binomialDistributionMean(int numOfEvents, double probabilityOfSuccessPerEvent) {
+            return numOfEvents * probabilityOfSuccessPerEvent;
+        }
+
+        /**
+         * @param probabilityOfSuccessPerEvent range 0-1
+         * @return σ² = np(1-p)
+         */
+        public static double binomialDistributionVariance(int numOfEvents, double probabilityOfSuccessPerEvent) {
+            return numOfEvents * probabilityOfSuccessPerEvent * (1 - probabilityOfSuccessPerEvent);
+        }
+
+        /**
+         * @param numOfEvents             n
+         * @param numOfSuccesses          r
+         * @param probabilityOfOneSuccess p. Range 0-1
+         * @return P(Y=n) = (n−1, r−1)×pᶦ×(1−p)ⁿ⁻ᶦ
+         */
+        public static double negativeBinomialDistribution(int numOfEvents, int numOfSuccesses,
+                                                          double probabilityOfOneSuccess) {
+            final long combinations = Combinatorics.combinations(numOfEvents - 1L, numOfSuccesses - 1L);
+            return combinations * Math.pow(probabilityOfOneSuccess, numOfSuccesses)
+                * Math.pow(1 - probabilityOfOneSuccess, (double) numOfEvents - numOfSuccesses);
+        }
+
+        /**
+         * @return P(X = x) = e^(-λ) * λˣ / x!
+         */
+        public static double poissonDistribution(long numberOfOccurrences, double rateOfSuccess) {
+            if (numberOfOccurrences < 0) {
+                throw new IllegalArgumentException("numberOfOccurrences must be non-negative.");
+            }
+            if (rateOfSuccess < 0) {
+                throw new IllegalArgumentException("rateOfSuccess must be non-negative.");
+            }
+
+            return Math.pow(Math.E, -rateOfSuccess) * Math.pow(rateOfSuccess, numberOfOccurrences)
+                / Arithmetic.factorial(numberOfOccurrences);
+        }
+
+        /***
+         * @return P(x) = 1 / √(2π) * e^(-(x - μ)² / (2σ²)) / σ
+         */
+        public static double normalDistribution(double mean, double standardDeviation, double rawScoreValue) {
+            checkGreater0(standardDeviation);
+            final double multiplier = Arithmetic.reciprocal(squareRoot(Trigonometry.PI2));
+            final double exponent = -Math.pow(rawScoreValue - mean, 2) / (2 * Math.pow(standardDeviation, 2));
+            return multiplier * Math.exp(exponent) / standardDeviation;
+        }
+
+        /**
+         * @param numOfFailures        x. Before success
+         * @param probabilityOfSuccess of one trial. Range 0-1
+         * @return P = (1-p)ˣ * p
+         */
+        public static double geometricDistribution(int numOfFailures, double probabilityOfSuccess) {
+            return Math.pow(1 - probabilityOfSuccess, numOfFailures) * probabilityOfSuccess;
+        }
+
+        /**
+         * @param probabilityOfSuccess of one trial. Range 0-1
+         * @return μ = (1-p)/p
+         */
+        public static double geometricDistributionMean(double probabilityOfSuccess) {
+            return (1 - probabilityOfSuccess) / probabilityOfSuccess;
+        }
+
+        /**
+         * @param probabilityOfSuccess of one trial. Range 0-1
+         * @return σ² = (1-p)/p²
+         */
+        public static double geometricDistributionVariance(double probabilityOfSuccess) {
+            return (1 - probabilityOfSuccess) / (probabilityOfSuccess * probabilityOfSuccess);
+        }
+
+        /**
+         * @return χ² = (observed value - expected value)² / expected value
+         */
+        public static double chiSquare(double observedValue, double expectedValue) {
+            return Math.pow(observedValue - expectedValue, 2) / expectedValue;
+        }
+
+        /**
+         * mean: μ = 1/a
+         * median: m = ln(2)/a
+         * variance: σ² = 1/a²
+         * standard deviation: σ = √(1/a²)
+         *
+         * @param rateParameter     a
+         * @param timeBetweenEvents X
+         * @return P(x > X) = exp(-ax). The probability of x being higher than the indicated value X
+         */
+        public static double exponentialDistributionHigher(double rateParameter, double timeBetweenEvents) {
+            return Math.exp(-rateParameter * timeBetweenEvents);
+        }
+
+        /**
+         * @param rateParameter     a
+         * @param timeBetweenEvents X
+         * @return P(x ≤ X) = 1 − exp(-ax). The probability of x being lower than the indicated value X
+         */
+        public static double exponentialDistributionLower(double rateParameter, double timeBetweenEvents) {
+            return 1 - Math.exp(-rateParameter * timeBetweenEvents);
+        }
     }
 
     public static final class Inferential {
@@ -833,6 +1057,137 @@ public final class Stats {
          */
         public static double zScore(double experimentalResult, double sampleMean, double standardDeviation) {
             return (experimentalResult - sampleMean) / standardDeviation;
+        }
+
+        /**
+         * @param independentVariables x
+         * @param dependentVariables   y
+         * @return SSR = ∑(ŷᵢ - ȳ)²
+         */
+        public static double regressionSumOfSquares(double[] independentVariables, double[] dependentVariables,
+                                                    double sampleMeanY) {
+            final double[] line = Geometry.leastSquaresRegressionLine(independentVariables, dependentVariables);
+            final double slope = line[Constants.ARR_1ST_INDEX];
+            final double intercept = line[Constants.ARR_2ND_INDEX];
+            double ssr = 0;
+            for (double x : independentVariables) {
+                final double yHat = slope * x + intercept;
+                ssr += Math.pow(yHat - sampleMeanY, 2);
+            }
+            return ssr;
+        }
+
+        /**
+         * Y ~ aX + b
+         * SST = SSR + SSE
+         * R² = 1 - SSE / SST
+         * R² = SSR / (SSR + SSE)
+         * The range is between 0 and 1.
+         * If R² = 1, then we have a perfect fit, which means that the values of Y are fully determined
+         * (i.e., without any error) by the values of X, and all data points lie precisely
+         * at the estimated line of best fit.
+         * If R² = 0, then the model is no better at predicting the values of Y
+         * than the model which always returns the average value of Y as a prediction.
+         *
+         * @param independentVariables x
+         * @param dependentVariables   y
+         * @return R² = SSR / SST
+         */
+        public static double coefficientOfDetermination(double[] independentVariables, double[] dependentVariables) {
+            final double meanY = Descriptive.mean(dependentVariables);
+            final double sst = Descriptive.totalSumOfSquares(dependentVariables, meanY);
+            final double ssr = regressionSumOfSquares(independentVariables, dependentVariables, meanY);
+            assert sst > 0;
+            return ssr / sst;
+        }
+
+        /**
+         * y = a × bˣ, where a ≠ 0 and b > 0, b ≠ 1.
+         * a is the value predicted by the exponential regression model for x = 0;
+         * If b > 1, the exponential fit describes an exponential growth;
+         * If 0 < b < 1, the exponential fit describes an exponential decay.
+         * <br/>
+         * ln(y) = ln(a × bˣ)
+         * ln(y) = ln(a) + ln(bˣ)
+         * ln(y) = ln(a) + x × ln(b)
+         *
+         * @param independentVariables x
+         * @param dependentVariables   y
+         * @return b = exp(m) a = exp(c)
+         */
+        public static double[] exponentialRegression(double[] independentVariables, double[] dependentVariables) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
+            // Transform dependent variables to ln(y)
+            final double[] lnY = new double[dependentVariables.length];
+            for (int i = 0; i < dependentVariables.length; i++) {
+                lnY[i] = Algebra.ln(dependentVariables[i]);
+            }
+            // Fit linear regression: ln(y) = intercept + slope * x
+            final double[] coeffs = Geometry.leastSquaresRegressionLine(independentVariables, lnY);
+            final double slope = coeffs[Constants.ARR_1ST_INDEX];
+            final double intercept = coeffs[Constants.ARR_2ND_INDEX];
+            // a = exp(intercept), b = exp(slope)
+            return new double[]{Math.exp(intercept), Math.exp(slope)};
+        }
+
+        /**
+         * Cubic model: y = a + bx + cx² + dx³
+         * β = (XᵀX)⁻¹Xᵀy
+         * X = |1 x₁ x₁² x₁³|
+         * |1 x₂ x₂² x₂³|
+         * |... ...|
+         * |1 xₙ xₙ² xₙ³|
+         *
+         * @param independentVariables x
+         * @param dependentVariables   y
+         * @return Fitted coefficients: [a, b, c, d]
+         */
+        public static double[] cubicRegression(double[] independentVariables, double[] dependentVariables) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            final double[][] matrix = new double[independentVariables.length][];
+            for (int i = 0; i < matrix.length; i++) {
+                final double x = independentVariables[i];
+                matrix[i] = new double[]{1, x, x * x, x * x * x};
+            }
+            final double[][] xTransposed = LinearAlgebra.transposeMatrix(matrix);
+            final double[][] xMultiplied = LinearAlgebra.matrixMultiply(xTransposed, matrix);
+            final double[][] xInversed = LinearAlgebra.matrixInverse(xMultiplied);
+            final double[][] xInversedProdTransposed = LinearAlgebra.matrixMultiply(xInversed, xTransposed);
+            return LinearAlgebra.matrixMultiply(xInversedProdTransposed, dependentVariables);
+        }
+
+        /**
+         * Polynomial model: y = a₀ + a₁x + a₂x² + ... + aₙxⁿ
+         * β = (XᵀX)⁻¹Xᵀy
+         * For degree n, you need at least n+1 data points. If you have exactly n+1 points,
+         * then the fit will be perfect, i.e., the curve will go through every point.
+         * It may happen that the polynomial regression cannot be fitted.
+         *
+         * @param independentVariables x
+         * @param dependentVariables   y
+         */
+        public static double[] polynomialRegression(double[] independentVariables, double[] dependentVariables) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            final int size = independentVariables.length;
+            final int degree = size - 2; // Fit degree n-2 for n data points
+            final double[][] matrix = new double[size][degree + 1];
+            for (int i = 0; i < size; i++) {
+                final double x = independentVariables[i];
+                final double[] row = new double[degree + 1]; // NOPMD
+                for (int j = 0; j <= degree; j++) {
+                    row[j] = Math.pow(x, j);
+                }
+                matrix[i] = row;
+            }
+            final double[][] xTransposed = LinearAlgebra.transposeMatrix(matrix);
+            final double[][] xMultiplied = LinearAlgebra.matrixMultiply(xTransposed, matrix);
+            final double[][] xInversed = LinearAlgebra.matrixInverse(xMultiplied);
+            final double[][] xInversedProdTransposed = LinearAlgebra.matrixMultiply(xInversed, xTransposed);
+            return LinearAlgebra.matrixMultiply(xInversedProdTransposed, dependentVariables);
         }
     }
 
@@ -876,76 +1231,6 @@ public final class Stats {
             final double[][] xInversed = LinearAlgebra.matrixInverse(xMultiplied);
             final double[][] xInversedProdTransposed = LinearAlgebra.matrixMultiply(xInversed, xTransposed);
             return LinearAlgebra.matrixMultiply(xInversedProdTransposed, dependentVariables);
-        }
-    }
-
-    public static final class Distribution {
-        private Distribution() {
-        }
-
-        /**
-         * @return P(X=r) = nCr * pʳ * (1 - p)ⁿ⁻ʳ
-         */
-        public static double binomialDistribution(
-            long numberOfEvents, long numberOfRequiredSuccesses, double probabilityOfOneSuccess) {
-            if (numberOfEvents < 0 || numberOfRequiredSuccesses < 0) {
-                throw new IllegalArgumentException(
-                    "Number of events and number of required successes must be non-negative."
-                );
-            }
-            if (probabilityOfOneSuccess < 0 || probabilityOfOneSuccess > 1) {
-                throw new IllegalArgumentException("Probability of one success must be between 0 and 1.");
-            }
-            if (numberOfRequiredSuccesses > numberOfEvents) {
-                throw new IllegalArgumentException(
-                    "Number of required successes cannot exceed the number of events.");
-            }
-
-            final long numberOfCombinations = Combinatorics.combinations(numberOfEvents, numberOfRequiredSuccesses);
-
-            return numberOfCombinations * Math.pow(probabilityOfOneSuccess, numberOfRequiredSuccesses) *
-                Math.pow(1 - probabilityOfOneSuccess, (double) numberOfEvents - numberOfRequiredSuccesses);
-        }
-
-        /**
-         * @return P(X = x) = e^(-λ) * λˣ / x!
-         */
-        public static double poissonDistribution(long numberOfOccurrences, double rateOfSuccess) {
-            if (numberOfOccurrences < 0) {
-                throw new IllegalArgumentException("numberOfOccurrences must be non-negative.");
-            }
-            if (rateOfSuccess < 0) {
-                throw new IllegalArgumentException("rateOfSuccess must be non-negative.");
-            }
-
-            return Math.pow(Math.E, -rateOfSuccess) * Math.pow(rateOfSuccess, numberOfOccurrences)
-                / Arithmetic.factorial(numberOfOccurrences);
-        }
-
-        /***
-         * The probability density function (PDF)
-         * @return P(x) = 1 / √(2π) * e^(-(x - μ)² / (2σ²)) / σ
-         */
-        public static double normalDistribution(double mean, double standardDeviation, double rawScoreValue) {
-            checkGreater0(standardDeviation);
-            final double multiplier = Arithmetic.reciprocal(squareRoot(Trigonometry.PI2));
-            final double exponent = -Math.pow(rawScoreValue - mean, 2) / (2 * Math.pow(standardDeviation, 2));
-            return multiplier * Math.exp(exponent) / standardDeviation;
-        }
-
-        /***
-         * Calculates the probability mass function (PMF)
-         * @return P = (1 - p)ˣ * p
-         */
-        public static double geometricDistributionPMF(long numberOfFailures, double probabilityOfSuccess) {
-            if (numberOfFailures < 0) {
-                throw new IllegalArgumentException("numberOfFailures must be non-negative.");
-            }
-            if (probabilityOfSuccess <= 0 || probabilityOfSuccess > 1) {
-                throw new IllegalArgumentException("probabilityOfSuccess must be in the range (0, 1].");
-            }
-
-            return Math.pow(1 - probabilityOfSuccess, numberOfFailures) * probabilityOfSuccess;
         }
     }
 }
