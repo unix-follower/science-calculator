@@ -483,6 +483,79 @@ class StatsTest {
             assertEquals(2.77259, Algebra.ln(2) / rateParameter, DELTA5); // median
             assertEquals(16, Arithmetic.reciprocal(rateParameter * rateParameter), DELTA1); // variance
         }
+
+        static List<Arguments> poissonDistributionArgs() {
+            return List.of(
+                Arguments.of(1, 5, 0.0337, DELTA4), // Probability P(X = x)
+                Arguments.of(0, 5, 0.0067, DELTA4) // Cumulative prob. P(X < x)
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("poissonDistributionArgs")
+        void testPoissonDistribution(long numOfOccurrences, long successRate, double expectedResult, double delta) {
+            // when
+            final double probability = Stats.Descriptive.poissonDistribution(numOfOccurrences, successRate);
+            // then
+            assertEquals(expectedResult, probability, delta);
+        }
+
+        @Test
+        void testPoissonDistributionCumulativeProbabilityAtMostEqToX() {
+            // given
+            final double probabilityLtX = 0.00674;
+            final double probabilityEqX = 0.03371;
+            // when
+            final double cumulativeProbability = Stats.Descriptive
+                .poissonDistributionCumulativeProbabilityAtMostEqToX(probabilityLtX, probabilityEqX);
+            // then
+            assertEquals(0.0404, cumulativeProbability, DELTA4);
+        }
+
+        @Test
+        void testPoissonDistributionCumulativeProbabilityGtX() {
+            // given
+            final double cumulativeProbabilityAtMostEqToX = 0.0404;
+            // when
+            final double probability = Stats.Descriptive
+                .poissonDistributionCumulativeProbabilityGtX(cumulativeProbabilityAtMostEqToX);
+            // then
+            assertEquals(0.9596, probability, DELTA4);
+        }
+
+        @Test
+        void testPoissonDistributionCumulativeProbabilityGtEqX() {
+            // given
+            final double probabilityLtX = 0.00674;
+            // when
+            final double probability = Stats.Descriptive.poissonDistributionCumulativeProbabilityGtEqX(probabilityLtX);
+            // then
+            assertEquals(0.9933, probability, DELTA4);
+        }
+
+        @Test
+        void testTStatistic() {
+            // given
+            final byte sampleMean = 15;
+            final byte populationMean = 10;
+            final byte sampleSize = 36;
+            final byte sampleStd = 6;
+            // when
+            final double tStatistic = Stats.Descriptive.tStatistic(sampleMean, populationMean, sampleSize, sampleStd);
+            // then
+            assertEquals(5, tStatistic, DELTA1);
+        }
+
+        @Test
+        void testCentralLimitTheorem() {
+            // given
+            final byte populationStd = 35;
+            final byte sampleSize = 49;
+            // when
+            final double sampleStd = Stats.Descriptive.centralLimitTheorem(populationStd, sampleSize);
+            // then
+            assertEquals(5, sampleStd, DELTA1);
+        }
     }
 
     @Nested
@@ -559,6 +632,95 @@ class StatsTest {
                 .polynomialRegression(independentVariables, dependentVariables);
             // then y = 0.0747x⁴ - 1.1808x³ + 5.7366x² - 7.8798x + 1.004
             assertArrayEquals(new double[]{1.004, -7.8798, 5.7366, -1.1808, 0.0747}, fittedCoeffs, DELTA4);
+        }
+
+        @Test
+        void testDegreesOfFreedom1Sample() {
+            // given dataset: 15, 46, 67, 23, 45. N=5
+            final byte sampleSize = 5;
+            // when
+            final int df = Stats.Inferential.degreesOfFreedom1Sample(sampleSize);
+            // then
+            assertEquals(4, df);
+        }
+
+        @Test
+        void testDegreesOfFreedom2SampleWithEqVariances() {
+            // given
+            // N1: 1, 7, 5, 12, 17. N1=5
+            // N2: 14, 15, 21, 29. N2=4
+            final byte sampleSize1 = 5;
+            final byte sampleSize2 = 4;
+            // when
+            final int df = Stats.Inferential.degreesOfFreedom2SampleWithEqVariances(sampleSize1, sampleSize2);
+            // then
+            assertEquals(7, df);
+        }
+
+        @Test
+        void testDegreesOfFreedom2SampleWithUneqVariances() {
+            // given
+            final byte sampleSize1 = 100;
+            final byte variance1 = 8;
+            final byte sampleSize2 = 50;
+            final byte variance2 = 5;
+            // when
+            final double df = Stats.Inferential
+                .degreesOfFreedom2SampleWithUneqVariances(sampleSize1, variance1, sampleSize2, variance2);
+            // then
+            assertEquals(120.57, df, DELTA2);
+        }
+
+        @Test
+        void testDegreesOfFreedomChiSquare() {
+            // given
+            final short rows = 1000;
+            final byte columns = 4;
+            // when
+            final long df = Stats.Inferential.degreesOfFreedomChiSquare(rows, columns);
+            // then
+            assertEquals(2997, df);
+        }
+
+        @Test
+        void testDegreesOfFreedomANOVA() {
+            // given
+            final byte sampleSize = 100;
+            final byte numOfGroups = 10;
+            // when
+            final long dfBetweenGroups = Stats.Inferential.degreesOfFreedomBetweenGroupsANOVA(numOfGroups);
+            final long dfWithinGroups = Stats.Inferential.degreesOfFreedomWithinGroupsANOVA(sampleSize, numOfGroups);
+            final long totalDf = Stats.Inferential.totalDegreesOfFreedomANOVA(sampleSize);
+            // then
+            assertEquals(9, dfBetweenGroups);
+            assertEquals(90, dfWithinGroups);
+            assertEquals(99, totalDf);
+        }
+
+        @Test
+        void testFStatistic() {
+            // given
+            final byte sampleVariance = 10;
+            final byte sampleVariance2 = 5;
+            // when
+            final double fStatistic = Stats.Inferential.fStatistic(sampleVariance, sampleVariance2);
+            // then
+            assertEquals(2, fStatistic, DELTA1);
+        }
+
+        @Test
+        void testFStatisticMultipleRegression() {
+            // given
+            final byte sumSquareOfResidualsFullModel = 12;
+            final byte sumSquareOfResidualsRestricted = 24;
+            final byte numOfExcludedCoeffs = 2;
+            final byte numOfCoeffs = 3;
+            final byte sampleSize = 37;
+            // when
+            final double fStatistic = Stats.Inferential.fStatistic(sumSquareOfResidualsFullModel,
+                sumSquareOfResidualsRestricted, numOfExcludedCoeffs, numOfCoeffs, sampleSize);
+            // then
+            assertEquals(17, fStatistic, DELTA1);
         }
     }
 }
