@@ -1,5 +1,7 @@
 package org.example.sciencecalc.math;
 
+import java.util.Arrays;
+
 import static org.example.sciencecalc.math.Algebra.squareRoot;
 
 public final class Probability {
@@ -241,5 +243,80 @@ public final class Probability {
      */
     public static double jointProbabilityOfDependentEvents(double probabilityA, double probabilityAGivenB) {
         return probabilityA * probabilityAGivenB;
+    }
+
+    /**
+     * @param probabilityA range 0-1
+     * @return P(Ā) = 1 − P(A)
+     */
+    public static double conditionalProbabilityNotA(double probabilityA) {
+        return 1 - probabilityA;
+    }
+
+    /**
+     * @param probabilityBGivenA range 0-1
+     * @return P(B̄∣A) = 1 − P(B∣A)
+     */
+    public static double conditionalProbabilityNotBGivenA(double probabilityBGivenA) {
+        return 1 - probabilityBGivenA;
+    }
+
+    /**
+     * @param probabilityNotBGivenNotA range 0-1
+     * @return P(B∣Ā) = 1 − P(B̄∣Ā)
+     */
+    public static double conditionalProbabilityBGivenNotA(double probabilityNotBGivenNotA) {
+        return 1 - probabilityNotBGivenNotA;
+    }
+
+    /**
+     * @param probabilityA          P(A). Probability that event A will occur
+     * @param probabilityBGivenA    P(B | A). Probability that event B will occur, given that event A has occurred
+     * @param probabilityBGivenNotA P(B | Ā). Probability that event B will occur, given that event Ā has occurred.
+     */
+    public static double conditionalProbability(double probabilityA, double probabilityBGivenA,
+                                                double probabilityBGivenNotA) {
+        final double probabilityNotA = conditionalProbabilityNotA(probabilityA);
+        // P(B) = P(A∩B) + P(Ā∩B) = P(A) * P(B|A) + P(Ā) * P(B|Ā)
+        final double totalProbability = probabilityA * probabilityBGivenA + probabilityNotA * probabilityBGivenNotA;
+        final double eventProbability = probabilityA * probabilityBGivenA; // P(A∩B) = P(A) * P(B|A)
+        return eventProbability / totalProbability; // P(A|B) = P(A∩B) / P(B)
+    }
+
+    /**
+     * P(∣X−E(X)∣≥k) ≤ σ²/k²
+     *
+     * @param bound k. How far do we want our result to diverge from the expected value?
+     * @return probability ≤ σ² / k²
+     */
+    public static double chebyshevsTheorem(double variance, double bound) {
+        return variance / (bound * bound);
+    }
+
+    /**
+     * P(∣X−E(X)∣≥kσ)≤1/k²
+     */
+    public static double chebyshevsTheorem(double bound) {
+        return Arithmetic.reciprocal(bound * bound);
+    }
+
+    /**
+     * @return Sum of squares within groups (SSW)
+     */
+    public static double anovaSSW(double[][] groups) {
+        final double[] standardDeviations = Arrays.stream(groups)
+            .mapToDouble(Stats.Descriptive::stdOfSampleVariance).toArray();
+        final int n = groups[Constants.ARR_1ST_INDEX].length;
+        return Stats.Descriptive.sumOfSquaresWithinGroups(standardDeviations, n);
+    }
+
+    /**
+     * @return Sum of squares between groups (SSB)
+     */
+    public static double anovaSSB(double[][] groups) {
+        final double[] groupsMeans = Arrays.stream(groups).mapToDouble(Stats.Descriptive::mean).toArray();
+        final double totalMean = Stats.Descriptive.mean(groupsMeans);
+        final int n = groups[Constants.ARR_1ST_INDEX].length;
+        return Stats.Descriptive.sumOfSquaresBetweenGroups(groupsMeans, n, totalMean);
     }
 }

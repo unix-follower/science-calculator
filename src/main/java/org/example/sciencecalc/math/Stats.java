@@ -1,5 +1,6 @@
 package org.example.sciencecalc.math;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -157,6 +158,27 @@ public final class Stats {
             final double mean = mean(dataset);
             final double sse = sumOfSquaredErrors(dataset, mean);
             return Arithmetic.reciprocal(dataset.length) * sse;
+        }
+
+        /**
+         * @return Mean sum of squares within groups MSW = SSW/df_w
+         */
+        public static double msw(double sumOfSquaresWithinGroups, long degreesOfFreedomWithinGroups) {
+            return sumOfSquaresWithinGroups / degreesOfFreedomWithinGroups;
+        }
+
+        /**
+         * @return Mean sum of squares between groups MSB = SSB/(k-1)
+         */
+        public static double msb(double sumOfSquaresBetweenGroups, int numOfGroups) {
+            return sumOfSquaresBetweenGroups / (numOfGroups - 1);
+        }
+
+        /**
+         * @return Mean sum of squares due to error MSE = SSE/(N−k)
+         */
+        public static double mse(double sse, int totalObservations, int numOfGroups) {
+            return sse / (totalObservations - numOfGroups);
         }
 
         private static void checkPredictedValuesSameLength(double[] predictedValues, double[] actualValues) {
@@ -412,6 +434,31 @@ public final class Stats {
         }
 
         /**
+         * @return SSW = ∑(nᵢ−1)sᵢ²
+         */
+        public static double sumOfSquaresWithinGroups(double[] standardDeviations, int groupSize) {
+            Objects.requireNonNull(standardDeviations);
+            double sum = 0;
+            for (double std : standardDeviations) {
+                sum += (groupSize - 1) * std * std;
+            }
+            return sum;
+        }
+
+        /**
+         * @return SSB = ∑nᵢ(x̄ᵢ-x̄)²
+         */
+        public static double sumOfSquaresBetweenGroups(double[] groupMeans, int groupSize, double totalMean) {
+            Objects.requireNonNull(groupMeans);
+            double sum = 0;
+            for (double datapoint : groupMeans) {
+                final double difference = Math.pow(datapoint - totalMean, 2);
+                sum += groupSize * difference;
+            }
+            return sum;
+        }
+
+        /**
          * @return Sₓᵧ = ∑ⁿᵢ₌₁(xᵢ−x̄)(yᵢ−ȳ)
          */
         public static double sumOfProducts(double[] independentVariables, double[] dependentVariables,
@@ -530,6 +577,13 @@ public final class Stats {
          */
         public static double totalSumOfSquares(double[] dependentVariables, double dependentVarsSampleMean) {
             return sumOfSquaredErrors(dependentVariables, dependentVarsSampleMean);
+        }
+
+        /**
+         * @return SST = SSB+SSE or SST = SSB+SSW
+         */
+        public static double totalSumOfSquares(double sumOfSquaresBetweenGroups, double sumOfSquaresWithinGroups) {
+            return sumOfSquaresBetweenGroups + sumOfSquaresWithinGroups;
         }
 
         /**
@@ -949,6 +1003,17 @@ public final class Stats {
         }
 
         /**
+         * σ² = No of tries × Prob of success × Prob of failure
+         *
+         * @param probabilityOfSuccess range 0-1
+         * @return σ² = npq
+         */
+        public static double binomialDistributionVariance(int numOfTrials, double probabilityOfSuccess,
+                                                          double probabilityOfFailure) {
+            return numOfTrials * probabilityOfSuccess * probabilityOfFailure;
+        }
+
+        /**
          * @param numOfEvents             n
          * @param numOfSuccesses          r
          * @param probabilityOfOneSuccess p. Range 0-1
@@ -962,9 +1027,11 @@ public final class Stats {
         }
 
         /**
+         * @param numberOfOccurrences x
+         * @param rateOfSuccess       λ. The average number of events per time interval
          * @return P(X = x) = e^(-λ) * λˣ / x!
          */
-        public static double poissonDistribution(long numberOfOccurrences, double rateOfSuccess) {
+        public static double poissonDistribution(long numberOfOccurrences, long rateOfSuccess) {
             if (numberOfOccurrences < 0) {
                 throw new IllegalArgumentException("numberOfOccurrences must be non-negative.");
             }
@@ -972,8 +1039,35 @@ public final class Stats {
                 throw new IllegalArgumentException("rateOfSuccess must be non-negative.");
             }
 
-            return Math.pow(Math.E, -rateOfSuccess) * Math.pow(rateOfSuccess, numberOfOccurrences)
-                / Arithmetic.factorial(numberOfOccurrences);
+            final double numerator = Math.exp(-rateOfSuccess) * Math.pow(rateOfSuccess, numberOfOccurrences);
+            final var denominator = Arithmetic.factorial(new BigInteger(Long.toString(numberOfOccurrences)));
+            return numerator / denominator.longValue();
+        }
+
+        /**
+         * @param probabilityLtX Cumulative prob. (X < x)
+         * @param probabilityEqX P(X = x)
+         * @return Probability that the number of occurrences will be lower than x. P(X ≤ x)
+         */
+        public static double poissonDistributionCumulativeProbabilityAtMostEqToX(double probabilityLtX,
+                                                                                 double probabilityEqX) {
+            return probabilityLtX + probabilityEqX;
+        }
+
+        /**
+         * @param cumulativeProbabilityAtMostEqToX Cumulative prob. P(X ≤ x)
+         * @return Probability that the number of occurrences will be higher than x. P(X > x)
+         */
+        public static double poissonDistributionCumulativeProbabilityGtX(double cumulativeProbabilityAtMostEqToX) {
+            return 1 - cumulativeProbabilityAtMostEqToX;
+        }
+
+        /**
+         * @param probabilityLtX Cumulative prob. (X < x)
+         * @return Probability that the number of occurrences will be at least x. Cumulative prob. (X ≥ x)
+         */
+        public static double poissonDistributionCumulativeProbabilityGtEqX(double probabilityLtX) {
+            return 1 - probabilityLtX;
         }
 
         /***
@@ -1039,6 +1133,20 @@ public final class Stats {
          */
         public static double exponentialDistributionLower(double rateParameter, double timeBetweenEvents) {
             return 1 - Math.exp(-rateParameter * timeBetweenEvents);
+        }
+
+        /**
+         * @return t = (x̄−μ)/(s/√n)
+         */
+        public static double tStatistic(double sampleMean, double populationMean, double sampleSize, double sampleStd) {
+            return (sampleMean - populationMean) / (sampleStd / squareRoot(sampleSize));
+        }
+
+        /**
+         * @return Sample standard deviation s = σ/√n
+         */
+        public static double centralLimitTheorem(double populationStd, int sampleSize) {
+            return populationStd / squareRoot(sampleSize);
         }
     }
 
@@ -1188,6 +1296,106 @@ public final class Stats {
             final double[][] xInversed = LinearAlgebra.matrixInverse(xMultiplied);
             final double[][] xInversedProdTransposed = LinearAlgebra.matrixMultiply(xInversed, xTransposed);
             return LinearAlgebra.matrixMultiply(xInversedProdTransposed, dependentVariables);
+        }
+
+        /**
+         * @return df=N−1
+         */
+        public static int degreesOfFreedom1Sample(int sampleSize) {
+            return sampleSize - 1;
+        }
+
+        /**
+         * 2-sample t-test with equal variances
+         *
+         * @return df = N1 + N2 - 2
+         */
+        public static int degreesOfFreedom2SampleWithEqVariances(int sampleSize1, int sampleSize2) {
+            return sampleSize1 + sampleSize2 - 2;
+        }
+
+        /**
+         * 2-sample t-test with unequal variances
+         *
+         * @return df = (Var₁/N₁ + N₂Var₂)² / (Var₁²/N₁²(N₁−1) + Var₂²/N₂²(N₂−1))
+         */
+        public static double degreesOfFreedom2SampleWithUneqVariances(int sampleSize1, double variance1,
+                                                                      int sampleSize2, double variance2) {
+            final double numerator = Math.pow(variance1 / sampleSize1 + variance2 / sampleSize2, 2);
+            final double denominator = variance1 * variance1 / (sampleSize1 * sampleSize1 * (sampleSize1 - 1))
+                + variance2 * variance2 / (sampleSize2 * sampleSize2 * (sampleSize2 - 1));
+            return numerator / denominator;
+        }
+
+        /**
+         * @param rows    Number of columns in the table
+         * @param columns Number of rows in the table
+         * @return df = (rows − 1) × (columns − 1)
+         */
+        public static long degreesOfFreedomChiSquare(long rows, long columns) {
+            return (rows - 1) * (columns - 1);
+        }
+
+        /**
+         * @return df_between = k−1
+         */
+        public static long degreesOfFreedomBetweenGroupsANOVA(long numOfGroups) {
+            return numOfGroups - 1;
+        }
+
+        /**
+         * @return df_within = N−k
+         */
+        public static long degreesOfFreedomWithinGroupsANOVA(long sampleSize, long numOfGroups) {
+            return sampleSize - numOfGroups;
+        }
+
+        /**
+         * @return df_total = N−1
+         */
+        public static long totalDegreesOfFreedomANOVA(long sampleSize) {
+            return sampleSize - 1;
+        }
+
+        /**
+         * @return F = S₁²/S₂²
+         */
+        public static double fStatistic(double sampleVariance, double sampleVariance2) {
+            return sampleVariance / sampleVariance2;
+        }
+
+        /**
+         * F = ((SSE₁ – SSE₂) / m) / (SSE₂ / (n−k))
+         * F = ((SSR_R − SSR_F)/J) / ((1−SSR_F)/(N−K))
+         *
+         * @param ssrf                Sum square of residuals — full model (SSR_F)
+         * @param ssrr                Sum square of residuals — restricted model (SSR_R)
+         * @param numOfExcludedCoeffs Number of excluded coefficients (J)
+         * @param numOfCoeffs         Total number of coefficients (K)
+         * @param sampleSize          N
+         * @return F = ((SSR_R − SSR_F)/J) / (SSR_F/(N−K))
+         */
+        public static double fStatistic(double ssrf, double ssrr, int numOfExcludedCoeffs,
+                                        int numOfCoeffs, int sampleSize) {
+            return (ssrr - ssrf) / numOfExcludedCoeffs / (ssrf / (sampleSize - numOfCoeffs));
+        }
+
+        /**
+         * @param msb Mean sum of squares between groups
+         * @param msw Mean sum of squares within groups
+         * @return F = MSB/MSW
+         */
+        public static double fValueWithinGroups(double msb, double msw) {
+            return msb / msw;
+        }
+
+        /**
+         * @param msb Mean sum of squares between groups
+         * @param mse Mean sum of squares due to error
+         * @return F = MSB/MSE
+         */
+        public static double fValueBetweenGroups(double msb, double mse) {
+            return msb / mse;
         }
     }
 

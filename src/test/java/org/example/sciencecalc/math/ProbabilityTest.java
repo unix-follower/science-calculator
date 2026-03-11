@@ -2,11 +2,14 @@ package org.example.sciencecalc.math;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProbabilityTest {
     private static final double DELTA1 = 0.1;
     private static final double DELTA2 = 0.01;
+    private static final double DELTA3 = 0.001;
     private static final double DELTA4 = 0.0001;
     private static final double DELTA5 = 0.00001;
     private static final double DELTA6 = 0.000001;
@@ -256,5 +259,95 @@ class ProbabilityTest {
         final double probability = Probability.jointProbabilityOfDependentEvents(probabilityA, probabilityB);
         // then
         assertEquals(0.56, probability, DELTA2);
+    }
+
+    @Test
+    void testConditionalProbabilityNotA() {
+        // given P(A)=0.05
+        final double probabilityA = 0.05;
+        // when
+        final double probability = Probability.conditionalProbabilityNotA(probabilityA);
+        // then
+        assertEquals(0.95, probability, DELTA2);
+    }
+
+    @Test
+    void testConditionalProbabilityNotBGivenA() {
+        // given P(B∣A)=0.09
+        final double probabilityBGivenA = 0.09;
+        // when
+        final double probability = Probability.conditionalProbabilityNotBGivenA(probabilityBGivenA);
+        // then
+        assertEquals(0.91, probability, DELTA2);
+    }
+
+    @Test
+    void testConditionalProbabilityBGivenNotA() {
+        // given P(B̄∣Ā)=0.05
+        final double probabilityNotBGivenNotA = 0.05;
+        // when
+        final double probability = Probability.conditionalProbabilityBGivenNotA(probabilityNotBGivenNotA);
+        // then
+        assertEquals(0.95, probability, DELTA2);
+    }
+
+    @Test
+    void testConditionalProbability() {
+        // given
+        final double probabilityA = 0.05; // P(A)=0.05
+        final double probabilityBGivenA = 0.91; // P(B|A)
+        final double probabilityBGivenNotA = 0.05; // P(B|Ā)
+        // when
+        final double probability = Probability
+            .conditionalProbability(probabilityA, probabilityBGivenA, probabilityBGivenNotA);
+        // then
+        assertEquals(0.4892, probability, DELTA4);
+    }
+
+    @Test
+    void testChebyshevsTheorem() {
+        // given
+        final double variance = Stats.Descriptive.binomialDistributionVariance(20, 0.25, 0.75);
+        final byte bound = 5;
+        // when
+        final double probability = Probability.chebyshevsTheorem(variance, bound);
+        // then
+        assertEquals(0.15, probability, DELTA2);
+    }
+
+    @Test
+    void testChebyshevsTheoremForm2() {
+        // given
+        final double bound = 2.5;
+        // when
+        final double probability = Probability.chebyshevsTheorem(bound);
+        // then
+        assertEquals(0.16, probability, DELTA2);
+    }
+
+    @Test
+    void testANOVA() {
+        // given
+        final double[][] groups = new double[][]{{8, 12, 10, 9, 11}, {6, 7, 5, 4, 6}, {10, 15, 12, 11, 13}};
+        final int numOfGroups = groups.length;
+        final long numOfObservations = Arrays.stream(groups).flatMapToDouble(Arrays::stream).count();
+        // when
+        final double ssw = Probability.anovaSSW(groups);
+        final double ssb = Probability.anovaSSB(groups);
+        final double sst = Stats.Descriptive.totalSumOfSquares(ssb, ssw);
+        final double msb = Stats.Descriptive.msb(ssb, numOfGroups);
+        final long dfw = Stats.Inferential.degreesOfFreedomWithinGroupsANOVA(numOfObservations, numOfGroups);
+        final long dfb = Stats.Inferential.degreesOfFreedomBetweenGroupsANOVA(numOfGroups);
+        final double msw = Stats.Descriptive.msw(ssw, dfw);
+        final double fValueWithinGroups = Stats.Inferential.fValueWithinGroups(msb, msw);
+        // then
+        assertEquals(29.999999999999996, ssw, DELTA2);
+        assertEquals(112.93333333333334, ssb, DELTA4);
+        assertEquals(142.933, sst, DELTA3);
+        assertEquals(56.467, msb, DELTA3);
+        assertEquals(12, dfw, DELTA1);
+        assertEquals(2, dfb, DELTA1);
+        assertEquals(2.5, msw, DELTA1);
+        assertEquals(22.587, fValueWithinGroups, DELTA3);
     }
 }
