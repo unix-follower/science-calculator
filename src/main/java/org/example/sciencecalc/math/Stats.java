@@ -1295,6 +1295,14 @@ public final class Stats {
             final double sqrtInner = squareRoot(part1 * part1 - part2);
             return Math.copySign(squareRoot(sqrtInner - part1), z);
         }
+
+        /**
+         * @param time hours, days, weeks, months or years
+         * @return r = (F / I)^(1/N) - 1
+         */
+        public static double exponentialGrowthPrediction(double time, double initialValue, double finalValue) {
+            return Math.pow(finalValue / initialValue, Arithmetic.reciprocal(time)) - 1;
+        }
     }
 
     public static final class Inferential {
@@ -1543,6 +1551,33 @@ public final class Stats {
          */
         public static double fValueBetweenGroups(double msb, double mse) {
             return msb / mse;
+        }
+
+        /**
+         * Where:
+         * SE(p̂) — standard error of the sample proportion;
+         * z_(α/2) — Z-score, which depends on the required confidence level.
+         *
+         * @param sampleProportion p̂. Range 0-1
+         * @return e_p̂ = z_(α/2) * SE(p̂) = z_(α/2) * √(p̂(1−p̂) / n)
+         */
+        public static double sampleProportionError(double zScore, long sampleSize, double sampleProportion) {
+            return zScore * squareRoot(sampleProportion * (1 - sampleProportion) / sampleSize);
+        }
+
+        /**
+         * @param criticalTValue The intersection of row (degrees of freedom) and column
+         * @return e_x̄ = t_(α/2) * SE(x̄) = t_(α/2) * s/√n
+         */
+        public static double sampleMeanErrorGivenStd(double criticalTValue, long sampleSize, double sampleStd) {
+            return criticalTValue * sampleStd / squareRoot(sampleSize);
+        }
+
+        /**
+         * @return e_x̄ = z_(α/2) * SE(x̄) = z_(α/2) * σ/√n
+         */
+        public static double sampleMeanErrorGivenPopulationStd(double zScore, long sampleSize, double populationStd) {
+            return zScore * populationStd / squareRoot(sampleSize);
         }
     }
 

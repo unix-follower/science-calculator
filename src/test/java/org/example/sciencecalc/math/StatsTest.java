@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
@@ -672,6 +673,23 @@ class StatsTest {
             // then
             assertEquals(1.1304919934222937, result, DELTA7);
         }
+
+        @ParameterizedTest
+        @CsvSource({
+            "104.9018,0.01913", // Daily 1.913%
+            "14.98596,0.1418", // Weekly 14.18%
+            "3.446464,0.7801", // Monthly 78%
+            "0.2872053,1011.9627" // Annual 101 196%
+        })
+        void testExponentialGrowthPrediction(double time, double expectedGrowthRate) {
+            // given
+            final int initialValue = 137_018;
+            final int finalValue = 1_000_000;
+            // when
+            final double growthRate = Stats.Descriptive.exponentialGrowthPrediction(time, initialValue, finalValue);
+            // then
+            assertEquals(expectedGrowthRate, growthRate, DELTA4);
+        }
     }
 
     @Nested
@@ -837,6 +855,46 @@ class StatsTest {
                 sumSquareOfResidualsRestricted, numOfExcludedCoeffs, numOfCoeffs, sampleSize);
             // then
             assertEquals(17, fStatistic, DELTA1);
+        }
+
+        @Test
+        void testSampleProportionError() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            final byte sampleSize = 30;
+            final double sampleProportion = 0.8; // p̂ = 400/500
+            // when
+            final double error = Stats.Inferential.sampleProportionError(zScore, sampleSize, sampleProportion);
+            // then ±14.314%
+            assertEquals(0.14314, error, DELTA5);
+        }
+
+        @Test
+        void testSampleMeanErrorGivenStd() {
+            // given
+            final byte sampleSize = 30;
+            final byte sampleStd = 70;
+            // Degrees of freedom (d) = 29 (row).
+            // a = 1 - 95% confidence level = 1 - 0.95 = 0.05
+            // α/2 = 0.05/2 = 0.025
+            // Column: 0.025 (for one-tail) or 0.005 (for two-tails).
+            final double criticalTValue = 2.04523; // The intersection of row 29 and column 0.025
+            // when
+            final double error = Stats.Inferential.sampleMeanErrorGivenStd(criticalTValue, sampleSize, sampleStd);
+            // then ±26.1384
+            assertEquals(26.1384, error, DELTA4);
+        }
+
+        @Test
+        void testSampleMeanErrorGivenPopulationStd() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            final byte sampleSize = 30;
+            final byte populationStd = 70;
+            // when
+            final double error = Stats.Inferential.sampleMeanErrorGivenPopulationStd(zScore, sampleSize, populationStd);
+            // then ±26.1384
+            assertEquals(25.05, error, DELTA2);
         }
     }
 }
