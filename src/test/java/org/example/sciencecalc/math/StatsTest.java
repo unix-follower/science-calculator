@@ -18,6 +18,7 @@ class StatsTest {
     private static final double DELTA4 = 0.0001;
     private static final double DELTA5 = 0.00001;
     private static final double DELTA6 = 0.000001;
+    private static final double DELTA7 = 0.0000001;
 
     @Nested
     class Descriptive {
@@ -406,8 +407,12 @@ class StatsTest {
             final short rawScoreValue = 253;
             // when
             final double probability = Stats.Descriptive.normalDistribution(mean, standardDeviation, rawScoreValue);
+            final double probLower = Stats.Descriptive.normalDistributionXLt(mean, standardDeviation, rawScoreValue);
+            final double probGreater = Stats.Descriptive.normalDistributionXGt(mean, standardDeviation, rawScoreValue);
             // then
             assertEquals(0.0737, probability, DELTA4);
+            assertEquals(0.655422, probLower, DELTA6);
+            assertEquals(0.344578, probGreater, DELTA6);
         }
 
         @Test
@@ -555,6 +560,117 @@ class StatsTest {
             final double sampleStd = Stats.Descriptive.centralLimitTheorem(populationStd, sampleSize);
             // then
             assertEquals(5, sampleStd, DELTA1);
+        }
+
+        @Test
+        void testUniformDistributionXLtOrEq() {
+            // given
+            final double minOutcome = 0.2;
+            final double outcome = 0.5;
+            final byte maxOutcome = 1;
+            // when
+            final double probability = Stats.Descriptive.uniformDistributionXLtOrEq(minOutcome, outcome, maxOutcome);
+            // then
+            assertEquals(0.375, probability, DELTA3);
+        }
+
+        @Test
+        void testUniformDistributionXGtOrEq() {
+            // given
+            final double minOutcome = 0.2;
+            final double outcome = 0.5;
+            final byte maxOutcome = 1;
+            // when
+            final double probability = Stats.Descriptive.uniformDistributionXGtOrEq(minOutcome, outcome, maxOutcome);
+            // then
+            assertEquals(0.625, probability, DELTA3);
+        }
+
+        @Test
+        void testUniformDistributionXWithinInterval() {
+            // given
+            final double minOutcome = 0.2;
+            final double lowerBound = 0.5;
+            final double upperBound = 0.7;
+            final byte maxOutcome = 1;
+            // when
+            final double probability = Stats.Descriptive
+                .uniformDistributionXWithinInterval(minOutcome, lowerBound, upperBound, maxOutcome);
+            // then
+            assertEquals(0.25, probability, DELTA2);
+        }
+
+        @Test
+        void testUniformDistributionPDF() {
+            // given
+            final double minOutcome = 0.2;
+            final byte maxOutcome = 1;
+            // when
+            final double probability = Stats.Descriptive.uniformDistributionPDF(minOutcome, maxOutcome);
+            // then
+            assertEquals(1.25, probability, DELTA2);
+        }
+
+        @Test
+        void testUniformDistributionQuantileFunction() {
+            // given
+            final double minOutcome = 0.2;
+            final byte maxOutcome = 1;
+            final double quantile = 0.15;
+            // when
+            final double result = Stats.Descriptive
+                .uniformDistributionQuantileFunction(minOutcome, maxOutcome, quantile);
+            // then
+            assertEquals(0.32, result, DELTA2);
+        }
+
+        @Test
+        void testLognormalDistributionXLtOrEq() {
+            // given
+            final double mean = 0.3;
+            final double std = 0.7;
+            final double outcome = 0.5;
+            // when
+            final double probability = Stats.Descriptive.lognormalDistributionXLtOrEq(mean, std, outcome);
+            // then
+            assertEquals(0.07798, probability, DELTA5);
+        }
+
+        @Test
+        void testLognormalDistributionXGtOrEq() {
+            // given
+            final double mean = 0.3;
+            final double std = 0.7;
+            final double outcome = 0.5;
+            // when
+            final double probability = Stats.Descriptive.lognormalDistributionXGtOrEq(mean, std, outcome);
+            // then
+            assertEquals(0.922, probability, DELTA3);
+        }
+
+        @Test
+        void testLognormalDistributionPDF() {
+            // given
+            final double mean = 0.3;
+            final double std = 0.7;
+            final double outcome = 0.5;
+            // when
+            final double probability = Stats.Descriptive.lognormalDistributionPDF(mean, std, outcome);
+            // then
+            assertEquals(0.4166173, probability, DELTA7);
+        }
+
+        @Test
+        void testLognormalDistributionQuantileFunction() {
+            // given
+            final double mean = 0.3;
+            final double std = 0.7;
+            final double quantile = 0.4;
+            // when
+            final double result = Stats.Descriptive
+                .lognormalDistributionQuantileFunction(mean, std, quantile);
+            // then
+            assertEquals(1.1304919934222937, result, DELTA7);
         }
     }
 

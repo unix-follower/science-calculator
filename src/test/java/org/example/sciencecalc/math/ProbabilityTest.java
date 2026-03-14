@@ -350,4 +350,15 @@ class ProbabilityTest {
         assertEquals(2.5, msw, DELTA1);
         assertEquals(22.587, fValueWithinGroups, DELTA3);
     }
+
+    @Test
+    void testPHat() {
+        // given
+        final short totalResponses = 700;
+        final short yesResponses = 450;
+        // when
+        final double probability = Probability.pHat(totalResponses, yesResponses);
+        // then
+        assertEquals(0.6429, probability, DELTA4);
+    }
 }

@@ -319,4 +319,13 @@ public final class Probability {
         final int n = groups[Constants.ARR_1ST_INDEX].length;
         return Stats.Descriptive.sumOfSquaresBetweenGroups(groupsMeans, n, totalMean);
     }
+
+    /**
+     * Where p̂ - sample proportion aka p-hat.
+     *
+     * @return p̂ = x/n
+     */
+    public static double pHat(long sampleSize, long numOfOccurrences) {
+        return numOfOccurrences / (double) sampleSize;
+    }
 }
