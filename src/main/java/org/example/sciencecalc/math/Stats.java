@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.DoubleUnaryOperator;
 
 import static org.example.sciencecalc.math.Algebra.squareRoot;
 import static org.example.sciencecalc.math.LinAlgUtils.checkSameDimensions;
@@ -1071,6 +1072,7 @@ public final class Stats {
         }
 
         /***
+         * @param rawScoreValue x
          * @return P(x) = 1 / √(2π) * e^(-(x - μ)² / (2σ²)) / σ
          */
         public static double normalDistribution(double mean, double standardDeviation, double rawScoreValue) {
@@ -1078,6 +1080,22 @@ public final class Stats {
             final double multiplier = Arithmetic.reciprocal(squareRoot(Trigonometry.PI2));
             final double exponent = -Math.pow(rawScoreValue - mean, 2) / (2 * Math.pow(standardDeviation, 2));
             return multiplier * Math.exp(exponent) / standardDeviation;
+        }
+
+        /**
+         * @return P(x < X). Probability of a value being lower than the chosen X (left-tailed p-value).
+         */
+        public static double normalDistributionXLt(double mean, double std, double rawScoreValue) {
+            return Arithmetic.ONE_HALF
+                * (1 + errorFunction((rawScoreValue - mean) / (std * squareRoot(2))));
+        }
+
+        /**
+         * @return P(x > X). Probability of a value being higher than the chosen X (right-tailed p-value).
+         */
+        public static double normalDistributionXGt(double mean, double std, double rawScoreValue) {
+            return Arithmetic.ONE_HALF
+                * (1 - errorFunction((rawScoreValue - mean) / (std * squareRoot(2))));
         }
 
         /**
@@ -1147,6 +1165,135 @@ public final class Stats {
          */
         public static double centralLimitTheorem(double populationStd, int sampleSize) {
             return populationStd / squareRoot(sampleSize);
+        }
+
+        /**
+         * Cumulative distribution function (CDF): F(x) = (x - a) / (b - a) for a ≤ x ≤ b
+         *
+         * @param minOutcome a
+         * @param outcome    x
+         * @param maxOutcome b
+         * @return P(X ≤ x)
+         */
+        public static double uniformDistributionXLtOrEq(double minOutcome, double outcome, double maxOutcome) {
+            return (outcome - minOutcome) / (maxOutcome - minOutcome);
+        }
+
+        /**
+         * CDF: F(x) = (b - x) / (b - a)
+         * Alternative (Complement Rule): P(X ≥ x) = 1 - P(X ≤ x)
+         *
+         * @param minOutcome a
+         * @param outcome    x
+         * @param maxOutcome b
+         * @return P(X ≥ x)
+         */
+        public static double uniformDistributionXGtOrEq(double minOutcome, double outcome, double maxOutcome) {
+            return (maxOutcome - outcome) / (maxOutcome - minOutcome);
+        }
+
+        /**
+         * @param minOutcome a
+         * @param lowerBound x₁
+         * @param upperBound x₂
+         * @param maxOutcome b
+         * @return P(x₁ ≤ X ≤ x₂) = (x₂ - x₁) / (b - a)
+         */
+        public static double uniformDistributionXWithinInterval(double minOutcome, double lowerBound,
+                                                                double upperBound, double maxOutcome) {
+            return (upperBound - lowerBound) / (maxOutcome - minOutcome);
+        }
+
+        /**
+         * μ = (a + b) / 2
+         * median = (a + b) / 2
+         * σ² = (b - a)² / 12
+         * σ = (b - a) / √12
+         *
+         * @param minOutcome a
+         * @param maxOutcome b
+         * @return Probability density function (pdf) of the U(a,b): f(x) = 1 / (b - a) for a ≤ x ≤ b
+         */
+        public static double uniformDistributionPDF(double minOutcome, double maxOutcome) {
+            return Arithmetic.reciprocal(maxOutcome - minOutcome);
+        }
+
+        /**
+         * @param minOutcome a
+         * @param maxOutcome b
+         * @return Q(p) = (b - a) * p + a.
+         */
+        public static double uniformDistributionQuantileFunction(double minOutcome, double maxOutcome,
+                                                                 double quantile) {
+            return (maxOutcome - minOutcome) * quantile + minOutcome;
+        }
+
+        /**
+         * F(x) = Φ((ln x - µ) / σ)
+         * Mean: exp(μ + σ² / 2)
+         * Median: exp(μ)
+         * Mode: exp(μ - σ²)
+         * Variance: (exp(σ²) - 1) ⋅ exp(2μ + σ²)
+         * Skewness: (exp(σ²) + 2) ⋅ √(exp(σ²) - 1)
+         *
+         * @param outcome x
+         * @return P(X ≤ x). F(x) = 1/2 + 1/2 * erf((ln x - µ) / (σ√2))
+         */
+        public static double lognormalDistributionXLtOrEq(double mean, double std, double outcome) {
+            return Arithmetic.ONE_HALF + Arithmetic.ONE_HALF
+                * errorFunction((Algebra.ln(outcome) - mean) / (std * squareRoot(2)));
+        }
+
+        /**
+         * @return erf(z) = 2/√π * ∫₀ᶻ exp(-t²) dt
+         */
+        public static double errorFunction(double upperBound) {
+            final DoubleUnaryOperator f = x -> Math.exp(-x * x);
+            final double sign = upperBound < 0 ? -1.0 : 1.0; // Handle complex number
+            return sign * 2 / squareRoot(Math.PI) * Calculus.integrateSimpson(f, 0, Math.abs(upperBound), 10);
+        }
+
+        /**
+         * @param outcome x
+         * @return P(X ≥ x) = 1/2 - 1/2 * erf((ln x - µ) / (σ√2))
+         */
+        public static double lognormalDistributionXGtOrEq(double mean, double std, double outcome) {
+            return Arithmetic.ONE_HALF - Arithmetic.ONE_HALF
+                * errorFunction((Algebra.ln(outcome) - mean) / (std * squareRoot(2)));
+        }
+
+        /**
+         * @param outcome x
+         * @return f(x) = 1/(xσ√(2π)) * exp(-(ln x - µ)² / (2σ²))
+         */
+        public static double lognormalDistributionPDF(double mean, double std, double outcome) {
+            return Arithmetic.reciprocal(outcome * std * squareRoot(Trigonometry.PI2))
+                * Math.exp(-Math.pow(Algebra.ln(outcome) - mean, 2) / (2 * Math.pow(std, 2)));
+        }
+
+        /**
+         * @return Q(p) = exp(µ+σ√2 * erf⁻¹(2p-1))
+         */
+        public static double lognormalDistributionQuantileFunction(double mean, double std, double quantile) {
+            return Math.exp(mean + std * squareRoot(2) * inverseErrorFunction(2 * quantile - 1));
+        }
+
+        /**
+         * Maclaurin series expansion: erf⁻¹(z) = ∑ₖ₌₀ cₖ/(2k+1) * (√π/2 * z)²ᵏ⁺¹
+         *
+         * @return erf⁻¹(z) = sgn(z) √(√((2/(πa) + ln(1-z²)/2)² - ln(1-z²)/a) - (2/(πa) + ln(1-z²)/2))
+         */
+        private static double inverseErrorFunction(double z) {
+            // Approximation by Sergei Winitzki, valid for |z| < 1
+            if (z <= -1 || z >= 1) {
+                throw new IllegalArgumentException("z must be in (-1, 1)");
+            }
+            final double a = 0.147;
+            final double ln1mz2 = Algebra.ln(1 - z * z);
+            final double part1 = 2 / (Math.PI * a) + ln1mz2 / 2.0;
+            final double part2 = 1 / a * ln1mz2;
+            final double sqrtInner = squareRoot(part1 * part1 - part2);
+            return Math.copySign(squareRoot(sqrtInner - part1), z);
         }
     }
 
