@@ -808,6 +808,13 @@ public final class Stats {
         }
 
         /**
+         * @return standard error = σ/√n
+         */
+        public static double standardError(double std, long datasetSize) {
+            return std / squareRoot(datasetSize);
+        }
+
+        /**
          * Relative standard error
          *
          * @return RSE = (Standard Error/Sample Mean)×100. The result is in %
@@ -1303,6 +1310,33 @@ public final class Stats {
         public static double exponentialGrowthPrediction(double time, double initialValue, double finalValue) {
             return Math.pow(finalValue / initialValue, Arithmetic.reciprocal(time)) - 1;
         }
+
+        /**
+         * @param lowerLimit PXmin
+         * @param upperLimit Xmax
+         * @param xMaxML     ML
+         * @param powerP1    p₁
+         * @param powerP2    p₂
+         * @param max        Max
+         * @param x          independent variable
+         * @return SMp(x) distribution
+         */
+        public static double smpx(double lowerLimit, double upperLimit, double xMaxML,
+                                  double powerP1, double powerP2, double max, double x) {
+            if (x < lowerLimit || x > upperLimit) { // x < PXmin or x > Xmax: SMp(x) = 0
+                return 0;
+            }
+
+            if (x <= xMaxML) { // PXMin ≤ x ≤ ML
+                // SMp(x) = ((x - PXmin)/(ML - PXmin))^p1 × Max
+                double base = (x - lowerLimit) / (xMaxML - lowerLimit);
+                return Math.pow(base, powerP1) * max;
+            } else { // ML < x ≤ XMax
+                // SMp(x) = ((Xmax - x)/(Xmax - ML))^p2 × Max
+                double base = (upperLimit - x) / (upperLimit - xMaxML);
+                return Math.pow(base, powerP2) * max;
+            }
+        }
     }
 
     public static final class Inferential {
@@ -1314,6 +1348,19 @@ public final class Stats {
          * A positive z-score means the data point is greater than the mean,
          * while a negative z-score means that it is less than the mean.
          * A z-score of 1 means that the data point is exactly 1 standard deviation above the mean.
+         * <table>
+         *     <tr><th>Confidence level</th><th>Z-score</th></tr>
+         *     <tr><td>70%</td><td>1.04</td></tr>
+         *     <tr><td>75%</td><td>1.15</td></tr>
+         *     <tr><td>80%</td><td>1.28</td></tr>
+         *     <tr><td>85%</td><td>1.44</td></tr>
+         *     <tr><td>90%</td><td>1.645</td></tr>
+         *     <tr><td>92%</td><td>1.75</td></tr>
+         *     <tr><td>95%</td><td>1.96</td></tr>
+         *     <tr><td>96%</td><td>2.05</td></tr>
+         *     <tr><td>98%</td><td>2.33</td></tr>
+         *     <tr><td>99%</td><td>2.58</td></tr>
+         * </table>
          *
          * @param experimentalResult x
          * @return z = (x - μ) / σ
@@ -1578,6 +1625,106 @@ public final class Stats {
          */
         public static double sampleMeanErrorGivenPopulationStd(double zScore, long sampleSize, double populationStd) {
             return zScore * populationStd / squareRoot(sampleSize);
+        }
+
+        /**
+         * With Finite Population Correction (FPC). The FPC factor is used when the sample
+         * is 5 or more percent of the entire population.
+         *
+         * @param sampleProportion p̂
+         * @param sampleSize       n
+         * @return MOE with FPC = z * √(p̂(1−p̂) / ((P-1)(n/(P-n))))
+         */
+        public static double marginOfError(double zScore, long sampleSize,
+                                           long populationSize, double sampleProportion) {
+            final double numerator = sampleProportion * (1 - sampleProportion);
+            final double denominator = (populationSize - 1) * (sampleSize / (double) (populationSize - sampleSize));
+            return zScore * squareRoot(numerator / denominator);
+        }
+
+        /**
+         * @param sampleProportion p̂
+         * @param sampleSize       n
+         * @return MOE = z * √(p̂(1−p̂)/n)
+         */
+        public static double marginOfError(double zScore, long sampleSize, double sampleProportion) {
+            return zScore * squareRoot(sampleProportion * (1 - sampleProportion) / sampleSize);
+        }
+
+        public static double marginOfError(double zScore, double standardError) {
+            return zScore * standardError;
+        }
+
+        /**
+         * Interpretation:
+         * A high p-value means that your data is highly compatible with the null hypothesis;
+         * A small p-value provides evidence against the null hypothesis, as it means that the
+         * result would be very improbable if the null hypothesis were true.
+         *
+         * @return Left-tailed (lower than reference) P-value
+         */
+        public static double leftTailedPValueFromZScore(double zScore) {
+            // Use standard normal CDF
+            return Descriptive.normalDistributionXLt(0, 1, zScore);
+        }
+
+        /**
+         * @return Right-tailed (greater than reference) P-value
+         */
+        public static double rightTailedPValueFromZScore(double zScore) {
+            return Descriptive.normalDistributionXGt(0, 1, zScore);
+        }
+
+        /**
+         * Two-tailed (different from reference) P-value
+         *
+         * @return 2 * (1 - Φ(|z|)), where Φ is the standard normal CDF
+         */
+        public static double twoTailedPValueFromZScore(double zScore) {
+            return 2 * (1 - Descriptive.normalDistributionXLt(0, 1, Math.abs(zScore)));
+        }
+
+        /**
+         * p = (t₁+t₂)/(n₁+n₂)
+         *
+         * @return Z = (p₁−p₂)/√(p⋅(1−p)⋅(1/n₁ + 1/n₂))
+         */
+        public static double abTest(long group1SampleSize, long group1NumOfPositiveResults,
+                                    long group2SampleSize, long group2NumOfPositiveResults) {
+            final double p = Probability.pHat(group1SampleSize + group2SampleSize,
+                group1NumOfPositiveResults + group2NumOfPositiveResults);
+            final double p1 = Probability.pHat(group1SampleSize, group1NumOfPositiveResults);
+            final double p2 = Probability.pHat(group2SampleSize, group2NumOfPositiveResults);
+            return (p1 - p2) / squareRoot(
+                p * (1 - p) * (Arithmetic.reciprocal(group1SampleSize) + Arithmetic.reciprocal(group2SampleSize)));
+        }
+
+        /**
+         * Lower bound = mean - margin of error
+         * Upper bound = mean + margin of error
+         */
+        public static double[] confidenceIntervalForPopulationMean(double zScore, double sampleMean, double stdError) {
+            final double error = marginOfError(zScore, stdError);
+            final double lowerBound = sampleMean - error;
+            final double upperBound = sampleMean + error;
+            return new double[]{lowerBound, upperBound, error};
+        }
+
+        public static double[] confidenceIntervalForPopulationMeanGivenStd(double zScore, double sampleMean,
+                                                                           double std, long sampleSize) {
+            final double stdError = Descriptive.standardError(std, sampleSize);
+            return confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
+        }
+
+        /**
+         * Lower bound = p̂ - MOE
+         * Upper bound = p̂ + MOE
+         * CI = p̂ ± z * √(p̂(1−p̂)/n)
+         */
+        public static double[] confidenceIntervalForPopulationProportion(double zScore, double sampleProportion,
+                                                                         long sampleSize) {
+            final double moe = marginOfError(zScore, sampleSize, sampleProportion);
+            return new double[]{sampleProportion - moe, sampleProportion + moe, moe};
         }
     }
 

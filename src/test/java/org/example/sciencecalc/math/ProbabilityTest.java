@@ -357,8 +357,8 @@ class ProbabilityTest {
         final short totalResponses = 700;
         final short yesResponses = 450;
         // when
-        final double probability = Probability.pHat(totalResponses, yesResponses);
+        final double proportion = Probability.pHat(totalResponses, yesResponses);
         // then
-        assertEquals(0.6429, probability, DELTA4);
+        assertEquals(0.6429, proportion, DELTA4);
     }
 }
