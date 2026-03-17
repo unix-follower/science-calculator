@@ -690,6 +690,65 @@ class StatsTest {
             // then
             assertEquals(expectedGrowthRate, growthRate, DELTA4);
         }
+
+        static List<Arguments> smpxArgs() {
+            return List.of(
+                Arguments.of(75, 95, 80, 81, 84, 90, 74, 0, DELTA1), // x < PXmin
+                Arguments.of(75, 95, 80, 81, 84, 90, 96, 0, DELTA1), // x > Xmax
+                Arguments.of(75, 95, 80, 81, 84, 90, 80, 90, DELTA1), // PXMin ≤ x ≤ ML
+                Arguments.of(75, 95, 80, 81, 84, 90, 81, 0.27374, DELTA1) // ML < x ≤ XMax
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("smpxArgs")
+        void testSmpx(double lowerLimit, double upperLimit, double xMaxML, double powerP1, double powerP2, double max,
+                      double x, double expectedResult, double delta) {
+            // when
+            final double result = Stats.Descriptive.smpx(lowerLimit, upperLimit, xMaxML, powerP1, powerP2, max, x);
+            // then
+            assertEquals(expectedResult, result, delta);
+        }
+
+        @Test
+        void testConfidenceIntervalForPopulationMean() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            final byte sampleMean = 3;
+            final double stdError = 0.05;
+            // when
+            final double[] results = Stats.Inferential
+                .confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
+            // then
+            assertArrayEquals(new double[]{2.902, 3.098, 0.097998}, results, DELTA3);
+        }
+
+        @Test
+        void testConfidenceIntervalForPopulationMeanGivenStd() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            final byte sampleMean = 3;
+            final double std = 0.5;
+            final byte sampleSize = 100;
+            // when
+            final double[] results = Stats.Inferential
+                .confidenceIntervalForPopulationMeanGivenStd(zScore, sampleMean, std, sampleSize);
+            // then
+            assertArrayEquals(new double[]{2.902, 3.098, 0.097998}, results, DELTA3);
+        }
+
+        @Test
+        void testConfidenceIntervalForPopulationProportion() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            final double sampleProportion = 0.6429;
+            final byte sampleSize = 100;
+            // when
+            final double[] results = Stats.Inferential
+                .confidenceIntervalForPopulationProportion(zScore, sampleProportion, sampleSize);
+            // then
+            assertArrayEquals(new double[]{0.54899, 0.73681, 0.09391}, results, DELTA5);
+        }
     }
 
     @Nested
@@ -895,6 +954,75 @@ class StatsTest {
             final double error = Stats.Inferential.sampleMeanErrorGivenPopulationStd(zScore, sampleSize, populationStd);
             // then ±26.1384
             assertEquals(25.05, error, DELTA2);
+        }
+
+        @Test
+        void testMarginOfErrorWithFPC() {
+            // given
+            final double zScore = 2.05; // confidence level = 96%
+            final short sampleSize = 400;
+            final short populationSize = 5000;
+            final double sampleProportion = 0.65;
+            // when
+            final double error = Stats.Inferential.marginOfError(zScore, sampleSize, populationSize, sampleProportion);
+            // then
+            assertEquals(0.0469, error, DELTA4);
+        }
+
+        @Test
+        void testMarginOfError() {
+            // given
+            final double zScore = 2.05; // confidence level = 96%
+            final short sampleSize = 400;
+            final double sampleProportion = 0.65;
+            // when
+            final double error = Stats.Inferential.marginOfError(zScore, sampleSize, sampleProportion);
+            // then
+            assertEquals(0.0489, error, DELTA4);
+        }
+
+        @Test
+        void testLeftTailedPValueFromZScore() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            // when
+            final double pValue = Stats.Inferential.leftTailedPValueFromZScore(zScore);
+            // then
+            assertEquals(0.975, pValue, DELTA3);
+        }
+
+        @Test
+        void testRightTailedPValueFromZScore() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            // when
+            final double pValue = Stats.Inferential.rightTailedPValueFromZScore(zScore);
+            // then
+            assertEquals(0.025, pValue, DELTA3);
+        }
+
+        @Test
+        void testTwoTailedPValueFromZScore() {
+            // given
+            final double zScore = 1.96; // confidence level = 95%
+            // when
+            final double pValue = Stats.Inferential.twoTailedPValueFromZScore(zScore);
+            // then
+            assertEquals(0.05, pValue, DELTA2);
+        }
+
+        @Test
+        void testABTest() {
+            // given
+            final byte group1SampleSize = 40;
+            final byte group1NumOfPositiveResults = 2;
+            final byte group2SampleSize = 12;
+            final byte group2NumOfPositiveResults = 5;
+            // when
+            final double pValue = Stats.Inferential.abTest(group1SampleSize, group1NumOfPositiveResults,
+                group2SampleSize, group2NumOfPositiveResults);
+            // then
+            assertEquals(-3.264, pValue, DELTA3);
         }
     }
 }
