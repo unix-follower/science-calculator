@@ -804,6 +804,18 @@ class StatsTest {
         }
 
         @Test
+        void testQuadraticRegression() {
+            // given
+            final double[] independentVariables = new double[]{4, 3, 2, 1};
+            final double[] dependentVariables = new double[]{5, 6, 4, 8};
+            // when
+            final double[] fittedCoeffs = Stats.Inferential
+                .quadraticRegression(independentVariables, dependentVariables);
+            // then
+            assertArrayEquals(new double[]{11.25, -4.45, 0.75}, fittedCoeffs, DELTA2);
+        }
+
+        @Test
         void testCubicRegression() {
             // given
             final double[] independentVariables = new double[]{0, 2, 3, 4, 5};
@@ -1023,6 +1035,39 @@ class StatsTest {
                 group2SampleSize, group2NumOfPositiveResults);
             // then
             assertEquals(-3.264, pValue, DELTA3);
+        }
+
+        @Test
+        void testBonferroniCorrection() {
+            // given
+            final byte numOfTests = 10;
+            final double significanceLevel = 0.051;
+            // when
+            final double correction = Stats.Inferential.bonferroniCorrection(numOfTests, significanceLevel);
+            // then
+            assertEquals(0.0051, correction, DELTA4);
+        }
+
+        @Test
+        void testBonferroniCorrectionWithSidakAdjustment() {
+            // given
+            final byte numOfTests = 10;
+            final double pValue = 0.05;
+            // when
+            final double correction = Stats.Inferential.bonferroniCorrectionWithSidakAdjustment(numOfTests, pValue);
+            // then
+            assertEquals(0.005116, correction, DELTA6);
+        }
+
+        @Test
+        void testAbsoluteUncertainty() {
+            // given
+            final byte measuredValue = 60;
+            final double relativeUncertainty = 1.8;
+            // when
+            final double absUncertainty = Stats.Inferential.absoluteUncertainty(measuredValue, relativeUncertainty);
+            // then
+            assertEquals(1.08, absUncertainty, DELTA2);
         }
     }
 }

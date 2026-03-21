@@ -1443,6 +1443,27 @@ public final class Stats {
         }
 
         /**
+         * y = a + bx + cx2
+         *
+         * @param independentVariables x
+         * @param dependentVariables   y
+         */
+        public static double[] quadraticRegression(double[] independentVariables, double[] dependentVariables) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            final double[][] matrix = new double[independentVariables.length][];
+            for (int i = 0; i < matrix.length; i++) {
+                final double x = independentVariables[i];
+                matrix[i] = new double[]{1, x, x * x};
+            }
+            final double[][] xTransposed = LinearAlgebra.transposeMatrix(matrix);
+            final double[][] xMultiplied = LinearAlgebra.matrixMultiply(xTransposed, matrix);
+            final double[][] xInversed = LinearAlgebra.matrixInverse(xMultiplied);
+            final double[][] xInversedProdTransposed = LinearAlgebra.matrixMultiply(xInversed, xTransposed);
+            return LinearAlgebra.matrixMultiply(xInversedProdTransposed, dependentVariables);
+        }
+
+        /**
          * Cubic model: y = a + bx + cx² + dx³
          * β = (XᵀX)⁻¹Xᵀy
          * X = |1 x₁ x₁² x₁³|
@@ -1725,6 +1746,30 @@ public final class Stats {
                                                                          long sampleSize) {
             final double moe = marginOfError(zScore, sampleSize, sampleProportion);
             return new double[]{sampleProportion - moe, sampleProportion + moe, moe};
+        }
+
+        /**
+         * @param significanceLevel The predetermined cut-off (commonly 5%) below which the null hypothesis is rejected
+         * @return Bonferroni correction = α / number of tests
+         */
+        public static double bonferroniCorrection(long numOfTests, double significanceLevel) {
+            return significanceLevel / numOfTests;
+        }
+
+        /**
+         * @param pValue The probability of observing data as extreme as the actual result,
+         *               assuming the null hypothesis is true.
+         * @return Bonferroni correction = 1 - (1 - p-value)^(1 / number of tests)
+         */
+        public static double bonferroniCorrectionWithSidakAdjustment(long numOfTests, double pValue) {
+            return 1 - Math.pow(1 - pValue, Arithmetic.reciprocal(numOfTests));
+        }
+
+        /**
+         * @return AU = MV × R/100
+         */
+        public static double absoluteUncertainty(double measuredValue, double relativeUncertaintyPercent) {
+            return measuredValue * relativeUncertaintyPercent / 100;
         }
     }
 
