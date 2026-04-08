@@ -3,6 +3,7 @@ package org.example.sciencecalc.math;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -237,7 +238,6 @@ public final class Stats {
          */
         public static double mean(double[] dataset) {
             Objects.requireNonNull(dataset);
-            Arrays.sort(dataset);
             return Arrays.stream(dataset).sum() / dataset.length;
         }
 
@@ -683,6 +683,23 @@ public final class Stats {
             final double yMean = mean(dependentVariables);
             final double numerator = LinearAlgebra.dotProduct(independentVariables, dependentVariables)
                 - (independentVariables.length * xMean * yMean);
+            final double xSumOfSquares = sumOfSquares(independentVariables);
+            final double ySumOfSquares = sumOfSquares(dependentVariables);
+            return numerator / squareRoot(xSumOfSquares * ySumOfSquares);
+        }
+
+        /**
+         * @param independentVariables x
+         * @param dependentVariables   y
+         * @return r = (∑(x-x̄)(y−ȳ)) / √(∑(x-x̄)²∑(y−ȳ)²)
+         */
+        public static double pearsonCorrelationCoeff(double[] independentVariables, double[] dependentVariables) {
+            Objects.requireNonNull(independentVariables);
+            Objects.requireNonNull(dependentVariables);
+            checkSameDimensions(independentVariables, dependentVariables);
+            final double xMean = mean(independentVariables);
+            final double yMean = mean(dependentVariables);
+            final double numerator = sumOfProducts(independentVariables, dependentVariables, xMean, yMean);
             final double xSumOfSquares = sumOfSquares(independentVariables);
             final double ySumOfSquares = sumOfSquares(dependentVariables);
             return numerator / squareRoot(xSumOfSquares * ySumOfSquares);
@@ -1290,7 +1307,7 @@ public final class Stats {
          *
          * @return erf⁻¹(z) = sgn(z) √(√((2/(πa) + ln(1-z²)/2)² - ln(1-z²)/a) - (2/(πa) + ln(1-z²)/2))
          */
-        private static double inverseErrorFunction(double z) {
+        public static double inverseErrorFunction(double z) {
             // Approximation by Sergei Winitzki, valid for |z| < 1
             if (z <= -1 || z >= 1) {
                 throw new IllegalArgumentException("z must be in (-1, 1)");
@@ -1336,6 +1353,153 @@ public final class Stats {
                 double base = (upperLimit - x) / (upperLimit - xMaxML);
                 return Math.pow(base, powerP2) * max;
             }
+        }
+
+        /**
+         * Lower bound = mean - margin of error
+         * Upper bound = mean + margin of error
+         */
+        public static double[] confidenceIntervalForPopulationMean(double zScore, double sampleMean, double stdError) {
+            final double error = Inferential.marginOfError(zScore, stdError);
+            final double lowerBound = sampleMean - error;
+            final double upperBound = sampleMean + error;
+            return new double[]{lowerBound, upperBound, error};
+        }
+
+        public static double[] confidenceIntervalForPopulationMeanGivenStd(double zScore, double sampleMean,
+                                                                           double std, long sampleSize) {
+            final double stdError = Descriptive.standardError(std, sampleSize);
+            return confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
+        }
+
+        /**
+         * Lower bound = p̂ - MOE
+         * Upper bound = p̂ + MOE
+         * CI = p̂ ± z * √(p̂(1−p̂)/n)
+         */
+        public static double[] confidenceIntervalForPopulationProportion(double zScore, double sampleProportion,
+                                                                         long sampleSize) {
+            final double moe = Inferential.marginOfError(zScore, sampleSize, sampleProportion);
+            return new double[]{sampleProportion - moe, sampleProportion + moe, moe};
+        }
+
+        /**
+         * Applicable when we have no ties. Where:
+         * C — Number of concordant pairs;
+         * D — Number of discordant pairs.
+         *
+         * @param independentVariables x
+         * @param dependentVariables y
+         * @return τₐ = (C − D) / (1/2 * n(n−1))
+         */
+        public static double kendallTauACorrelation(double[] independentVariables, double[] dependentVariables) {
+            checkSameDimensions(independentVariables, dependentVariables);
+            final int observations = independentVariables.length;
+            int concordant = 0;
+            int discordant = 0;
+            for (int i = 0; i < observations; i++) {
+                for (int j = i + 1; j < observations; j++) {
+                    final double x = independentVariables[i];
+                    final double nextX = independentVariables[j];
+                    final double y = dependentVariables[i];
+                    final double nextY = dependentVariables[j];
+                    if (isConcordant(x, nextX, y, nextY)) {
+                        concordant += 1;
+                    } else if (isDiscordant(x, nextX, y, nextY)) {
+                        discordant += 1;
+                    }
+                }
+            }
+
+            return (concordant - discordant) / (Arithmetic.ONE_HALF * observations * (observations - 1));
+        }
+
+        /**
+         * If xᵢ < xⱼ and yᵢ < yⱼ then this pair is concordant.
+         * If xᵢ > xⱼ and yᵢ > yⱼ then this pair is concordant.
+         */
+        private static boolean isConcordant(double x, double nextX, double y, double nextY) {
+            return (x < nextX && y < nextY) || (x > nextX && y > nextY);
+        }
+
+        /**
+         * If xᵢ < xⱼ and yᵢ > yⱼ then this pair is discordant.
+         * If xᵢ > xⱼ and yᵢ < yⱼ then this pair is discordant.
+         */
+        private static boolean isDiscordant(double x, double nextX, double y, double nextY) {
+            return (x < nextX && y > nextY) || (x > nextX && y < nextY);
+        }
+
+        /**
+         * @param independentVariables x
+         * @param dependentVariables y
+         * @return τ_b = (C − D) / (1/2 * n(n−1))
+         */
+        public static double kendallTauBCorrelation(double[] independentVariables, double[] dependentVariables) {
+            checkSameDimensions(independentVariables, dependentVariables);
+            final int observations = independentVariables.length;
+            int concordant = 0;
+            int discordant = 0;
+            double tiesInX = 0;
+            double tiesInY = 0;
+            for (int i = 0; i < observations; i++) {
+                for (int j = i + 1; j < observations; j++) {
+                    final double x = independentVariables[i];
+                    final double nextX = independentVariables[j];
+                    final double y = dependentVariables[i];
+                    final double nextY = dependentVariables[j];
+                    final boolean tieInX = Double.compare(x, nextX) == 0;
+                    final boolean tieInY = Double.compare(y, nextY) == 0;
+                    // If xᵢ = xⱼ and yᵢ ≠ yⱼ then we have a tie in x.
+                    if (tieInX && !tieInY) {
+                        tiesInX += 1;
+                    // If xᵢ ≠ xⱼ and yᵢ = yⱼ then we have a tie in y.
+                    } else if (!tieInX && tieInY) {
+                        tiesInY += 1;
+                    }
+
+                    if (isConcordant(x, nextX, y, nextY)) {
+                        concordant += 1;
+                    } else if (isDiscordant(x, nextX, y, nextY)) {
+                        discordant += 1;
+                    }
+                }
+            }
+
+            return (concordant - discordant)
+                / (squareRoot(concordant + discordant + tiesInX) * squareRoot(concordant + discordant + tiesInY));
+        }
+
+        /**
+         * @param independentVariables x
+         * @param dependentVariables y
+         * @return τ꜀ = (2m(C − D)) / ((m−1)n²)
+         */
+        public static double kendallTauCCorrelation(double[] independentVariables, double[] dependentVariables) {
+            checkSameDimensions(independentVariables, dependentVariables);
+            final int observations = independentVariables.length;
+            int concordant = 0;
+            int discordant = 0;
+            final var uniqueX = HashSet.newHashSet(independentVariables.length);
+            final var uniqueY = HashSet.newHashSet(dependentVariables.length);
+            for (int i = 0; i < observations; i++) {
+                for (int j = i + 1; j < observations; j++) {
+                    final double x = independentVariables[i];
+                    uniqueX.add(x);
+                    final double nextX = independentVariables[j];
+                    final double y = dependentVariables[i];
+                    uniqueY.add(y);
+                    final double nextY = dependentVariables[j];
+                    if (isConcordant(x, nextX, y, nextY)) {
+                        concordant += 1;
+                    } else if (isDiscordant(x, nextX, y, nextY)) {
+                        discordant += 1;
+                    }
+                }
+            }
+
+            final double m = Math.min(uniqueX.toArray().length, uniqueY.toArray().length);
+            return 2 * m * (concordant - discordant) / ((m - 1) * observations * observations);
         }
     }
 
@@ -1721,34 +1885,6 @@ public final class Stats {
         }
 
         /**
-         * Lower bound = mean - margin of error
-         * Upper bound = mean + margin of error
-         */
-        public static double[] confidenceIntervalForPopulationMean(double zScore, double sampleMean, double stdError) {
-            final double error = marginOfError(zScore, stdError);
-            final double lowerBound = sampleMean - error;
-            final double upperBound = sampleMean + error;
-            return new double[]{lowerBound, upperBound, error};
-        }
-
-        public static double[] confidenceIntervalForPopulationMeanGivenStd(double zScore, double sampleMean,
-                                                                           double std, long sampleSize) {
-            final double stdError = Descriptive.standardError(std, sampleSize);
-            return confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
-        }
-
-        /**
-         * Lower bound = p̂ - MOE
-         * Upper bound = p̂ + MOE
-         * CI = p̂ ± z * √(p̂(1−p̂)/n)
-         */
-        public static double[] confidenceIntervalForPopulationProportion(double zScore, double sampleProportion,
-                                                                         long sampleSize) {
-            final double moe = marginOfError(zScore, sampleSize, sampleProportion);
-            return new double[]{sampleProportion - moe, sampleProportion + moe, moe};
-        }
-
-        /**
          * @param significanceLevel The predetermined cut-off (commonly 5%) below which the null hypothesis is rejected
          * @return Bonferroni correction = α / number of tests
          */
@@ -1770,6 +1906,59 @@ public final class Stats {
          */
         public static double absoluteUncertainty(double measuredValue, double relativeUncertaintyPercent) {
             return measuredValue * relativeUncertaintyPercent / 100;
+        }
+
+        /**
+         * @param mean              μ
+         * @param sampleMean        x̄
+         * @param sampleSize        n
+         * @param sampleStd         σ
+         * @return z = (x̄ - μ) / (σ / √n)
+         */
+        public static double hypothesisTesting(double mean, double sampleMean, long sampleSize, double sampleStd) {
+            return (sampleMean - mean) / (sampleStd / squareRoot(sampleSize));
+        }
+
+        /**
+         * Youden index reflects a test’s overall ability to discriminate between those with and without the condition.
+         *
+         * @return Youden index = sensitivity+specificity−1
+         */
+        public static double youdenIndex(double truePositive, double falsePositive,
+                                         double falseNegative, double trueNegative) {
+            final double sensitivity = Probability.recall(truePositive, falseNegative);
+            final double specificity = Probability.specificity(trueNegative, falsePositive);
+            return sensitivity + specificity - 1;
+        }
+
+        /**
+         * @return absolute error = |actual value - measured value|
+         */
+        public static double absoluteError(double measuredValue, double actualValue) {
+            return Math.abs(actualValue - measuredValue);
+        }
+
+        /**
+         * Different names:
+         * <ul>
+         * <li>Relative uncertainty;</li>
+         * <li>Approximation error;</li>
+         * <li>Fractional error;</li>
+         * <li>Percentage error.</li>
+         * </ul>
+         *
+         * @return relative error = |absolute error / actual value|. The result is in %
+         */
+        public static double relativeError(double measuredValue, double actualValue) {
+            final double absError = absoluteError(measuredValue, actualValue);
+            return Math.abs(absError / actualValue) * 100;
+        }
+
+        /**
+         * @return X = Z×σ+μ
+         */
+        public static double rawScore(double mean, double std, double zScore) {
+            return zScore * std + mean;
         }
     }
 
