@@ -223,6 +223,17 @@ class StatsTest {
         }
 
         @Test
+        void testPearsonCorrelationCoeff() {
+            // given
+            final double[] independentVariables = new double[]{2, 7.5, 3, 34.2, 26};
+            final double[] dependentVariables = new double[]{21, 12.5, 3, 11, 17};
+            // when
+            final double coeff = Stats.Descriptive.pearsonCorrelationCoeff(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.0632, coeff, DELTA4);
+        }
+
+        @Test
         void testMatthewsCorrelationCoefficient() {
             // given
             final byte truePositives = 10;
@@ -246,6 +257,54 @@ class StatsTest {
                 .spearmansRankCorrelation(independentVariables, dependentVariables);
             // then
             assertEquals(0.3, correlationCoeff, DELTA1);
+        }
+
+        @Test
+        void testKendallTauACorrelation() {
+            // given
+            final double[] independentVariables = new double[]{1, 2, 3, 4, 5};
+            final double[] dependentVariables = new double[]{0, 8, 3, 2, 4};
+            // when
+            final double correlationCoeff = Stats.Descriptive
+                .kendallTauACorrelation(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.2, correlationCoeff, DELTA1);
+        }
+
+        @Test
+        void testKendallTauBCorrelation() {
+            // given
+            final double[] independentVariables = new double[]{1, 2, 3, 4, 5};
+            final double[] dependentVariables = new double[]{0, 8, 3, 2, 4};
+            // when
+            final double correlationCoeff = Stats.Descriptive
+                .kendallTauBCorrelation(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.2, correlationCoeff, DELTA1);
+        }
+
+        @Test
+        void testKendallTauBCorrelationWithTieInX() {
+            // given
+            final double[] independentVariables = new double[]{1, 1, 2};
+            final double[] dependentVariables = new double[]{1, 2, 3};
+            // when
+            final double correlationCoeff = Stats.Descriptive
+                .kendallTauBCorrelation(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.816496, correlationCoeff, DELTA6);
+        }
+
+        @Test
+        void testKendallTauCCorrelation() {
+            // given
+            final double[] independentVariables = new double[]{1, 2, 3, 4, 5};
+            final double[] dependentVariables = new double[]{0, 8, 3, 2, 4};
+            // when
+            final double correlationCoeff = Stats.Descriptive
+                .kendallTauCCorrelation(independentVariables, dependentVariables);
+            // then
+            assertEquals(0.2, correlationCoeff, DELTA1);
         }
 
         @Test
@@ -717,7 +776,7 @@ class StatsTest {
             final byte sampleMean = 3;
             final double stdError = 0.05;
             // when
-            final double[] results = Stats.Inferential
+            final double[] results = Stats.Descriptive
                 .confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
             // then
             assertArrayEquals(new double[]{2.902, 3.098, 0.097998}, results, DELTA3);
@@ -731,7 +790,7 @@ class StatsTest {
             final double std = 0.5;
             final byte sampleSize = 100;
             // when
-            final double[] results = Stats.Inferential
+            final double[] results = Stats.Descriptive
                 .confidenceIntervalForPopulationMeanGivenStd(zScore, sampleMean, std, sampleSize);
             // then
             assertArrayEquals(new double[]{2.902, 3.098, 0.097998}, results, DELTA3);
@@ -744,7 +803,7 @@ class StatsTest {
             final double sampleProportion = 0.6429;
             final byte sampleSize = 100;
             // when
-            final double[] results = Stats.Inferential
+            final double[] results = Stats.Descriptive
                 .confidenceIntervalForPopulationProportion(zScore, sampleProportion, sampleSize);
             // then
             assertArrayEquals(new double[]{0.54899, 0.73681, 0.09391}, results, DELTA5);
@@ -1068,6 +1127,57 @@ class StatsTest {
             final double absUncertainty = Stats.Inferential.absoluteUncertainty(measuredValue, relativeUncertainty);
             // then
             assertEquals(1.08, absUncertainty, DELTA2);
+        }
+
+        @Test
+        void testHypothesisTesting() {
+            // given
+            // significanceLevel = 0.05
+            final short mean = 500; // H₀; H₁≠500
+            final short sampleMean = 495;
+            final byte sampleSize = 30;
+            final byte sampleStd = 10;
+            // when
+            final double tTestStatistic = Stats.Inferential
+                .hypothesisTesting(mean, sampleMean, sampleSize, sampleStd);
+            // then
+            assertEquals(-2.738613, tTestStatistic, DELTA6);
+        }
+
+        @Test
+        void testYoudenIndex() {
+            // given
+            final byte truePositive = 20;
+            final byte falsePositive = 5;
+            final byte falseNegative = 15;
+            final byte trueNegative = 40;
+            // when
+            final double idx = Stats.Inferential.youdenIndex(truePositive, falsePositive, falseNegative, trueNegative);
+            // then
+            assertEquals(0.4603, idx, DELTA4);
+        }
+
+        @Test
+        void testRelativeError() {
+            // given
+            final double measuredValue = 120.5;
+            final double actualValue = 121.2;
+            // when
+            final double error = Stats.Inferential.relativeError(measuredValue, actualValue);
+            // then
+            assertEquals(0.578, error, DELTA3);
+        }
+
+        @Test
+        void testRawScore() {
+            // given
+            final byte mean = 60;
+            final byte std = 3;
+            final byte zScore = -4;
+            // when
+            final double rawScore = Stats.Inferential.rawScore(mean, std, zScore);
+            // then
+            assertEquals(48, rawScore, DELTA1);
         }
     }
 }
