@@ -11,6 +11,9 @@ public class PizzaCalc {
     private static final double ALPHA_DOUGH = 0.14e-6; // m² / s
     private static final double DOUGH_THERMAL_CONDUCTIVITY = 0.5; // W/(m·K)
 
+    private PizzaCalc() {
+    }
+
     /**
      * a₁ × τ + a₂ × √τ = a₃ × d
      *
@@ -37,7 +40,7 @@ public class PizzaCalc {
         final double structuralFactor = 0.251;
         // t = (thickness²) / (4 * alpha * factor)
         final double heatingTimeSeconds = Math.round(
-            (thicknessMeters * thicknessMeters) / (4 * ALPHA_DOUGH * structuralFactor));
+            thicknessMeters * thicknessMeters / (4 * ALPHA_DOUGH * structuralFactor));
 
         return new double[]{heatingTimeSeconds, interfaceTemp};
     }
