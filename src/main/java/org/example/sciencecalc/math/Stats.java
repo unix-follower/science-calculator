@@ -1368,7 +1368,7 @@ public final class Stats {
 
         public static double[] confidenceIntervalForPopulationMeanGivenStd(double zScore, double sampleMean,
                                                                            double std, long sampleSize) {
-            final double stdError = Descriptive.standardError(std, sampleSize);
+            final double stdError = standardError(std, sampleSize);
             return confidenceIntervalForPopulationMean(zScore, sampleMean, stdError);
         }
 
