@@ -28,4 +28,8 @@ public enum DensityUnit {
     public static final double WATER_DENSITY = 0.99987;
     public static final double AIR_DENSITY = 1.225; // at sea level (15°C and 101.325 kPa) in kg/m³
     public static final double EARTH_DENSITY = 5514.4; // kg/m³
+
+    public static double gramsPerCubicCmToKgPerCubicMeter(double gPerCubicCm) {
+        return gPerCubicCm * 1000;
+    }
 }
