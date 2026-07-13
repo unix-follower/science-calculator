@@ -1,0 +1,66 @@
+package org.example.sciencecalc.finance;
+
+import org.example.sciencecalc.math.Algebra;
+import org.example.sciencecalc.math.Arithmetic;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class GeneralInvestmentCalc {
+    public enum CompoundingFrequency {
+        YEARLY(1.0), // (1/Yr)
+        SEMI_ANNUALLY(2.0), // (2/Yr)
+        QUARTERLY(4.0), // (4/Yr)
+        BI_MONTHLY(6.0), // (6/Yr)
+        MONTHLY(12.0), // (12/Yr)
+        BI_WEEKLY_AVG(26.0), // average
+        BI_WEEKLY(365.25 / 14.0), // (26/Yr)
+        WEEKLY_AVG(52.0),
+        WEEKLY(365.25 / 7.0), // (52/Yr)
+        DAILY_AVG(360.0),
+        DAILY_360(365.0), // (360/Yr)
+        DAILY_365(365.25), // (365/Yr)
+        CONTINUOUS(Double.POSITIVE_INFINITY);
+
+        private final double frequency;
+
+        CompoundingFrequency(double frequency) {
+            this.frequency = frequency;
+        }
+
+        public double getFrequency() {
+            return frequency;
+        }
+    }
+
+    /**
+     * <a href="https://www.omnicalculator.com/finance/compound-interest-rate">Calculator</a>
+     * where:
+     * PV - Present Value;
+     * FV - Future Value;
+     * t - term;
+     * m - compound frequency in a given term;
+     * r - interest rate.
+     * <p/>
+     * FV = PV × (1 + r/m)^(mt)
+     * FV = PV × e^(rt)
+     *
+     * @param initialBalance Present Value (PV).
+     * @param finalBalance   Future Value (FV), equal to the sum of the initial balance and the surplus.
+     * @param term           in years
+     */
+    public static double compoundInterestRate(
+        double initialBalance, double finalBalance, double term, CompoundingFrequency compoundingFrequency) {
+        if (compoundingFrequency == CompoundingFrequency.CONTINUOUS) {
+            // r = ln(FV/PV) × 1/t
+            return Algebra.ln(finalBalance / initialBalance) * Arithmetic.reciprocal(term);
+        }
+
+        final double m = compoundingFrequency.getFrequency();
+        // r = m × ((FV/PV)^(1/(mt)) − 1)
+        final double rawRate = m * (Math.pow(finalBalance / initialBalance, Arithmetic.reciprocal(m * term)) - 1.0);
+        return BigDecimal.valueOf(rawRate)
+            .setScale(6, RoundingMode.HALF_UP)
+            .doubleValue();
+    }
+}
