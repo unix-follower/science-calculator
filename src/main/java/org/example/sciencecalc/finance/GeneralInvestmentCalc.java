@@ -63,4 +63,28 @@ public class GeneralInvestmentCalc {
             .setScale(6, RoundingMode.HALF_UP)
             .doubleValue();
     }
+
+    /**
+     * <a href="https://www.omnicalculator.com/finance/compound-growth">Calculator</a>
+     * where:
+     * PV - Initial balance or present value;
+     * FV - Future value of the initial balance;
+     * t - Number of years;
+     * m - Number of times the interest is compounded per year;
+     * r - Annual interest rate;
+     * CG – Compound growth.
+     * <p/>
+     * FV = PV × (1 + r/m)^(mt)
+     * CG = FV − PV
+     *
+     * @param interestRate Annual rate of interest, in % on the scale [0,1].
+     * @param term         in years
+     */
+    public static double[] compoundGrowth(
+        double initialDeposit, double interestRate, double term, CompoundingFrequency frequency) {
+        final double m = frequency.getFrequency();
+        final double finalBalance = initialDeposit * Math.pow(1 + interestRate / m, m * term);
+        final double totalCompoundGrowth = finalBalance - initialDeposit;
+        return new double[]{finalBalance, totalCompoundGrowth};
+    }
 }
