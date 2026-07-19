@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class GeneralInvestmentTest {
     private static final double DELTA1 = 0.1;
+    private static final double DELTA3 = 0.001;
     private static final double DELTA5 = 0.00001;
 
     @Test
@@ -40,5 +41,25 @@ class GeneralInvestmentTest {
         assertEquals(4926.8, finalBalance, DELTA1);
         final double totalCompoundGrowth = results[Constants.ARR_2ND_INDEX];
         assertEquals(3926.8, totalCompoundGrowth, DELTA1);
+    }
+
+    @Test
+    void testHoldingPeriodReturn() {
+        // given
+        final byte boughtPrice = 100;
+        final byte currentPrice = 120;
+        final double dividendIncomePerShare = 7.5;
+        // when
+        final double[] results = GeneralInvestmentCalc
+            .holdingPeriodReturn(boughtPrice, currentPrice, dividendIncomePerShare);
+        // then
+        assertNotNull(results);
+        assertEquals(3, results.length);
+        final double capitalGainsYield = results[Constants.ARR_1ST_INDEX];
+        assertEquals(0.2, capitalGainsYield, DELTA1);
+        final double dividendYield = results[Constants.ARR_2ND_INDEX];
+        assertEquals(0.075, dividendYield, DELTA3);
+        final double holdingPeriodReturn = results[Constants.ARR_3RD_INDEX];
+        assertEquals(0.275, holdingPeriodReturn, DELTA3);
     }
 }
