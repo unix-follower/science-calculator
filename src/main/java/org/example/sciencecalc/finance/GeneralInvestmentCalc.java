@@ -87,4 +87,17 @@ public class GeneralInvestmentCalc {
         final double totalCompoundGrowth = finalBalance - initialDeposit;
         return new double[]{finalBalance, totalCompoundGrowth};
     }
+
+    /**
+     * <a href="https://www.omnicalculator.com/finance/holding-period-return">Calculator</a>
+     *
+     * @return all results in percents on the scale [0, 1]
+     */
+    public static double[] holdingPeriodReturn(double boughtPrice, double currentPrice, double dividendIncomePerShare) {
+        final double capitalGains = currentPrice - boughtPrice;
+        final double capitalGainsYield = capitalGains / boughtPrice;
+        final double dividendYield = dividendIncomePerShare / boughtPrice;
+        final double holdingPeriodReturn = capitalGainsYield + dividendYield;
+        return new double[]{capitalGainsYield, dividendYield, holdingPeriodReturn};
+    }
 }
