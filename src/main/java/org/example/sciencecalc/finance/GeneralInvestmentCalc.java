@@ -100,4 +100,23 @@ public class GeneralInvestmentCalc {
         final double holdingPeriodReturn = capitalGainsYield + dividendYield;
         return new double[]{capitalGainsYield, dividendYield, holdingPeriodReturn};
     }
+
+    /**
+     * <a href="https://www.omnicalculator.com/finance/discount-rate">Calculator</a>
+     *
+     * @param presentValue         PV
+     * @param futureValue          FV
+     * @param term                 i. Number of periods (years).
+     * @param compoundingFrequency m. In the given period (year).
+     */
+    public static double[] discountRate(
+        double presentValue, double futureValue, double term, CompoundingFrequency compoundingFrequency) {
+        // (FV/PV)^(1/(i×m)) - 1
+        final double periodicDiscountRate = Math.pow(
+            futureValue / presentValue,
+            Arithmetic.reciprocal(term * compoundingFrequency.getFrequency())
+        ) - 1;
+        final double annualDiscountRate = periodicDiscountRate * compoundingFrequency.getFrequency();
+        return new double[]{annualDiscountRate, periodicDiscountRate};
+    }
 }

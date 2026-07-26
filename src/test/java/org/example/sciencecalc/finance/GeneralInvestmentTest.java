@@ -62,4 +62,22 @@ class GeneralInvestmentTest {
         final double holdingPeriodReturn = results[Constants.ARR_3RD_INDEX];
         assertEquals(0.275, holdingPeriodReturn, DELTA3);
     }
+
+    @Test
+    void testDiscountRate() {
+        // given
+        final short presentValue = 1000;
+        final short futureValue = 2000;
+        final byte term = 10;
+        // when
+        final double[] results = GeneralInvestmentCalc
+            .discountRate(presentValue, futureValue, term, CompoundingFrequency.MONTHLY);
+        // then
+        assertNotNull(results);
+        assertEquals(2, results.length);
+        final double annualDiscountRate = results[Constants.ARR_1ST_INDEX];
+        assertEquals(0.06952, annualDiscountRate, DELTA5);
+        final double periodicDiscountRate = results[Constants.ARR_2ND_INDEX];
+        assertEquals(0.00579, periodicDiscountRate, DELTA3);
+    }
 }
