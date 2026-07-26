@@ -2,9 +2,11 @@ package org.example.sciencecalc.finance;
 
 import org.example.sciencecalc.math.Algebra;
 import org.example.sciencecalc.math.Arithmetic;
+import org.example.sciencecalc.math.Constants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 public class GeneralInvestmentCalc {
     public enum CompoundingFrequency {
@@ -118,5 +120,33 @@ public class GeneralInvestmentCalc {
         ) - 1;
         final double annualDiscountRate = periodicDiscountRate * compoundingFrequency.getFrequency();
         return new double[]{annualDiscountRate, periodicDiscountRate};
+    }
+
+    /**
+     * <a href="https://www.omnicalculator.com/finance/investment-fees">Calculator</a>
+     */
+    public static double[] investmentFees(double... args) {
+        Objects.requireNonNull(args);
+        Objects.checkIndex(Constants.ARR_7TH_INDEX, args.length);
+        final double initialInvestmentAmount = args[Constants.ARR_1ST_INDEX];
+        // In % on scale [0,1]. Fees charged by mutual fund companies or brokers when
+        // an investor buys or sells mutual fund shares.
+        final double salesLoad = args[Constants.ARR_2ND_INDEX];
+        final double annualReturn = args[Constants.ARR_3RD_INDEX]; // In % on scale [0,1]
+        final double annualOperatingFees = args[Constants.ARR_4TH_INDEX]; // In % on scale [0,1]
+        final double investmentDuration = args[Constants.ARR_5TH_INDEX]; // In years
+        final double turnoverCost = args[Constants.ARR_6TH_INDEX]; // In % on scale [0,1]
+        final double redemptionFees = args[Constants.ARR_7TH_INDEX]; // In % on scale [0,1]
+
+        final double investedAmount = initialInvestmentAmount * (1 - salesLoad);
+        final double effectiveReturn = annualReturn - annualOperatingFees;
+        final double fundValueBeforeRedemption = investedAmount * Math.pow(1 + effectiveReturn, investmentDuration)
+            - investedAmount * turnoverCost;
+        final double finalFundValue = fundValueBeforeRedemption * (1 - redemptionFees);
+        final double fundValueWithoutFees = initialInvestmentAmount * Math.pow(1 + annualReturn, investmentDuration);
+        final double totalFees = fundValueWithoutFees - finalFundValue;
+        return new double[]{
+            investedAmount, effectiveReturn, fundValueBeforeRedemption, finalFundValue, fundValueWithoutFees, totalFees
+        };
     }
 }
