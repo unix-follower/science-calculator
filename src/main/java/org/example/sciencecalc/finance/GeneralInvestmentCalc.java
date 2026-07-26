@@ -102,6 +102,8 @@ public class GeneralInvestmentCalc {
     }
 
     /**
+     * <a href="https://www.omnicalculator.com/finance/discount-rate">Calculator</a>
+     *
      * @param presentValue         PV
      * @param futureValue          FV
      * @param term                 i. Number of periods (years).
