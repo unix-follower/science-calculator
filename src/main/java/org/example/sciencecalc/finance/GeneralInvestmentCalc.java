@@ -9,6 +9,9 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 public class GeneralInvestmentCalc {
+    private GeneralInvestmentCalc() {
+    }
+
     public enum CompoundingFrequency {
         YEARLY(1.0), // (1/Yr)
         SEMI_ANNUALLY(2.0), // (2/Yr)
