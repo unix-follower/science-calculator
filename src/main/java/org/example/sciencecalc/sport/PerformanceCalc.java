@@ -19,4 +19,30 @@ public final class PerformanceCalc {
         final double reserve = BodyMeasurementsCalc.maximumHeartRate(age) - restingHeartRate;
         return restingHeartRate + intensity * reserve;
     }
+
+    /**
+     * <a href="https://www.omnicalculator.com/sports/max-heart-rate">Calculator</a>
+     *
+     * @param age in years.
+     * @return In BPM.
+     */
+    public static double maxHeartRateHaskellFox(int age) {
+        return 220 - age;
+    }
+
+    public static double maxHeartRateInbar(int age) {
+        return 205.8 - (0.685 * age);
+    }
+
+    public static double maxHeartRateNes(int age) {
+        return 211 - (0.64 * age);
+    }
+
+    public static double maxHeartRateOaklandNonlinear(int age) {
+        return 192 - (0.007 * age * age);
+    }
+
+    public static double maxHeartRateTanakaMonahanSeals(int age) {
+        return 208 - (0.7 * age);
+    }
 }
