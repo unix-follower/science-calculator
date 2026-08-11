@@ -49,8 +49,8 @@ public final class PerformanceCalc {
     /**
      * <a href="https://www.omnicalculator.com/sports/heart-rate-recovery">Calculator</a>
      *
-     * @param maxHRAfterExercise Maximum heart rate after the exercise
-     * @param hrAfter1MinuteRest Heart rate after 1 minute of rest
+     * @param maxHRAfterExercise Maximum heart rate after the exercise, in bpm.
+     * @param hrAfter1MinuteRest Heart rate after 1 minute of rest, in bpm.
      * @return in bpm (beats per minute).
      */
     public static double heartRateRecovery(int maxHRAfterExercise, int hrAfter1MinuteRest) {
