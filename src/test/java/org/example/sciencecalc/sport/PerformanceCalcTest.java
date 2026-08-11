@@ -69,4 +69,15 @@ class PerformanceCalcTest {
         // then
         assertEquals(185.6, maxHeartRate, DELTA2);
     }
+
+    @Test
+    void testHeartRateRecovery() {
+        // given
+        final short maxHeartRateAfterExercise = 175;
+        final short heartRateAfter1MinuteRest = 156;
+        // when
+        final double hrRecovery = PerformanceCalc.heartRateRecovery(maxHeartRateAfterExercise, heartRateAfter1MinuteRest);
+        // then
+        assertEquals(19, hrRecovery, DELTA1);
+    }
 }
