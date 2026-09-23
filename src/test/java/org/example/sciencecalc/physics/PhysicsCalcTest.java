@@ -180,14 +180,14 @@ class PhysicsCalcTest {
         }
 
         @Test
-        void calculateVelocityOfDesiredMomentum() {
+        void testVelocityFromMomentum() {
             // given
             final double momentum = 195;
-            final double mass = 65; // kg
+            final double massKg = 65;
             // when
-            final double velocity = PhysicsCalc.Kinematics.velocityOfDesiredMomentum(momentum, mass);
+            final double velocity = PhysicsCalc.Kinematics.velocityFromMomentum(momentum, massKg);
             // then
-            assertEquals(3, velocity, 0.1);
+            assertEquals(3, velocity, DELTA1);
         }
 
         @Test

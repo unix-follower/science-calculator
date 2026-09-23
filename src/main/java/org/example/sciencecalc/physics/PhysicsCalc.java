@@ -384,18 +384,26 @@ public final class PhysicsCalc {
         }
 
         /**
+         * <a href="https://www.omnicalculator.com/physics/impulse-and-momentum">Calculator</a>
+         * {@link Kinematics#impulse}
+         * final momentum = initial + impulse (same direction)
+         * final momentum = |impulse - initial| (opposite direction)
+         *
          * @param velocity in m/s
-         * @return p = mv. The units are kg*m/s
+         * @return p = mv. The units are kg*m/s aka N·s
          */
         public static double momentum(double massKg, double velocity) {
             return massKg * velocity;
         }
 
         /**
-         * @return v = p/m. The units are kg*m/s
+         * <a href="https://www.omnicalculator.com/physics/impulse-and-momentum">Calculator</a>
+         *
+         * @param momentum kg*m/s aka N·s
+         * @return v = p/m. The units are m/s
          */
-        public static double velocityOfDesiredMomentum(double momentum, double mass) {
-            return momentum / mass;
+        public static double velocityFromMomentum(double momentum, double massKg) {
+            return momentum / massKg;
         }
 
         /**
@@ -566,25 +574,35 @@ public final class PhysicsCalc {
         }
 
         /**
-         * @return J = Δp = p₂ − p₁ = m * V₂ - m * V₁ = m * ΔV. The units are N·s
+         * <a href="https://www.omnicalculator.com/physics/impulse-and-momentum">Calculator</a>
+         * {@link Kinematics#momentum}
+         * Δp = final momentum - initial momentum
+         *
+         * @return J = Δp = p_f − pᵢ = m * V_f - m * Vᵢ = m * ΔV. The units are N·s
          */
         public static double impulse(double massKg, double initialVelocity, double finalVelocity) {
             return massKg * (finalVelocity - initialVelocity);
         }
 
         /**
-         * Δp = ΣFΔt
+         * <a href="https://www.omnicalculator.com/physics/impulse-and-momentum">Calculator</a>
+         * Impulse is the change in momentum.
+         * J = Δp = ΣFΔt
+         * Δp/Δt = ΣFΔt/Δt
          *
          * @param impulse in N·s
-         * @return J = F⋅t. The units are N
+         * @return Δp/Δt = ΣF. The units are N
          */
         public static double forceFromImpulse(double impulse, double timeIntervalSeconds) {
             return impulse / timeIntervalSeconds;
         }
 
         /**
+         * <a href="https://www.omnicalculator.com/physics/impulse-and-momentum">Calculator</a>
+         * J = F⋅t
+         *
          * @param impulse in N·s
-         * @return J = F⋅t. The units are seconds
+         * @return Δp = ΣF. The units are seconds
          */
         public static double timeIntervalOfImpulse(double impulse, double forceNewtons) {
             return impulse / forceNewtons;
